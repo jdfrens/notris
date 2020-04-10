@@ -12,12 +12,17 @@ defmodule Notris.Umbrella.MixProject do
       all_tests: [
         "format --check-formatted",
         "compile --force --warnings-as-errors",
+        "credo --strict",
       ]
     ]
   end
 
   defp deps do
-    []
+    [
+      {:credo, "~> 1.3", only: [:dev, :test], runtime: false},
+    ]
+  end
+
   defp preferred_cli_env do
     [
       all_tests: :test,
