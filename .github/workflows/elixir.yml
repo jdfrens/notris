@@ -1,0 +1,36 @@
+name: Elixir CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup elixir
+      uses: actions/setup-elixir@v1
+      with:
+        elixir-version: 1.10.2
+        otp-version: 22.3.2
+    - name: Retrieve cached PLT
+      uses: actions/cache@v1
+      with:
+        path: .plt
+        key: plt-${{ github.head_ref }}
+        restore-keys: |
+          plt-${{ github.head_ref }}
+          plt-master
+          plt-
+    - name: Install Dependencies
+      run: |
+        mix local.rebar --force
+        mix local.hex --force
+        mix deps.get
+    - name: Run Tests
+      run: mix all_tests
