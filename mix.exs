@@ -9,6 +9,7 @@ defmodule Notris.Umbrella.MixProject do
       deps: deps(),
       dialyzer: dialyzer(),
       preferred_cli_env: preferred_cli_env(),
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -53,6 +54,10 @@ defmodule Notris.Umbrella.MixProject do
   defp preferred_cli_env do
     [
       all_tests: :test,
+      coveralls: :test,
+      "coveralls.detail": :test,
+      "coveralls.post": :test,
+      "coveralls.html": :test
     ]
   end
 end
