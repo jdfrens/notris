@@ -29,13 +29,13 @@ defmodule Notris.Piece do
   }
 
   @spec new(shape(), boolean(), rotation_integer(), color()) :: t()
-  def new(shape, _mirror, _rotate, _color) do
+  def new(shape, _mirror, _rotate, color) do
     points = @point_grids[shape]
 
     %__MODULE__{
       location: {4, 4},
       points: points,
-      color: :red
+      color: color
     }
   end
 end
