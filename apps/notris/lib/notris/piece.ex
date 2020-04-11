@@ -3,8 +3,8 @@ defmodule Notris.Piece do
   A `Notris.Piece` is the thing that falls that the user gets to control.
   """
 
-  @enforce_keys ~w(location points color)a
-  defstruct ~w(location points color)a
+  @enforce_keys ~w(shape location points color)a
+  defstruct ~w(shape location points color)a
 
   @type location :: {pos_integer(), pos_integer()}
   @type point :: {pos_integer(), pos_integer()}
@@ -13,6 +13,7 @@ defmodule Notris.Piece do
   @type shape :: atom()
   @type rotation_integer :: integer()
   @type t :: %__MODULE__{
+          shape: shape(),
           location: location(),
           points: points(),
           color: color()
@@ -33,6 +34,7 @@ defmodule Notris.Piece do
     points = @point_grids[shape]
 
     %__MODULE__{
+      shape: shape,
       location: {4, 4},
       points: points,
       color: color
