@@ -1,9 +1,11 @@
 defmodule Notris do
   @moduledoc """
-  Notris keeps the contexts that define your domain
-  and business logic.
-
-  Contexts are also responsible for managing your data, regardless
-  if it comes from the database, an external API or others.
+  API for Notris.
   """
+
+  @spec rotate_right(Notris.Piece.t()) :: Notris.Piece.t()
+  defdelegate rotate_right(piece), to: Notris.Piece
+
+  @spec rotate_left(Notris.Piece.t()) :: Notris.Piece.t()
+  defdelegate rotate_left(piece), to: Notris.Piece
 end
