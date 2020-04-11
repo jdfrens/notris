@@ -40,4 +40,15 @@ defmodule Notris.Piece do
       color: color
     }
   end
+
+  def to_glyph(piece) do
+    for row <- 1..4 do
+      for col <- 1..4 do
+        if {col, row} in piece.points, do: "X", else: "_"
+      end
+      |> Enum.join()
+      |> Kernel.<>("\n")
+    end
+    |> Enum.join()
+  end
 end

@@ -32,4 +32,17 @@ defmodule Notris.PieceTest do
       assert %Piece{points: [{1, 1}, {2, 1}, {2, 2}, {3, 2}]} = Piece.new(:z, false, 0, color())
     end
   end
+
+  describe "#to_glyph" do
+    test "I" do
+      piece = Piece.new(:i, false, 0, color())
+
+      assert Piece.to_glyph(piece) == """
+             _X__
+             _X__
+             _X__
+             _X__
+             """
+    end
+  end
 end
