@@ -21,7 +21,7 @@ defmodule Notris.PieceTest do
     end
 
     test "it builds an O" do
-      assert %Piece{points: [{2, 2}, {2, 3}, {3, 2}, {3, 3}]} = Piece.new(:o, false, 0, color())
+      assert %Piece{points: [{1, 1}, {2, 1}, {1, 2}, {2, 2}]} = Piece.new(:o, false, 0, color())
     end
 
     test "it builds a T" do
@@ -29,7 +29,7 @@ defmodule Notris.PieceTest do
     end
 
     test "it builds a Z" do
-      assert %Piece{points: [{1, 2}, {2, 2}, {2, 3}, {3, 3}]} = Piece.new(:z, false, 0, color())
+      assert %Piece{points: [{1, 1}, {2, 1}, {2, 2}, {3, 2}]} = Piece.new(:z, false, 0, color())
     end
   end
 end
