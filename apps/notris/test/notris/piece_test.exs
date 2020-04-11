@@ -33,6 +33,33 @@ defmodule Notris.PieceTest do
     end
   end
 
+  describe "#rotate_right/1" do
+    test "rotates an I" do
+      i = Piece.new(:i, false, 0, color())
+      assert [{4, 2}, {3, 2}, {2, 2}, {1, 2}] = Piece.rotate_right(i).points
+    end
+
+    test "rotates an L" do
+      l = Piece.new(:l, false, 0, color())
+      assert [{3, 2}, {2, 2}, {1, 2}, {1, 3}] = Piece.rotate_right(l).points
+    end
+
+    test "rotates an O" do
+      o = Piece.new(:o, false, 0, color())
+      assert [{2, 1}, {2, 2}, {1, 1}, {1, 2}] = Piece.rotate_right(o).points
+    end
+
+    test "rotates a T" do
+      t = Piece.new(:t, false, 0, color())
+      assert [{3, 2}, {2, 2}, {1, 2}, {2, 3}] = Piece.rotate_right(t).points
+    end
+
+    test "rotates a Z" do
+      z = Piece.new(:z, false, 0, color())
+      assert [{3, 1}, {3, 2}, {2, 2}, {2, 3}] = Piece.rotate_right(z).points
+    end
+  end
+
   describe "#to_glyph" do
     test "I" do
       piece = Piece.new(:i, false, 0, color())
