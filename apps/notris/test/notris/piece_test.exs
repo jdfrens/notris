@@ -39,6 +39,26 @@ defmodule Notris.PieceTest do
       assert %Piece{points: [{2, 3}, {2, 2}, {2, 1}, {1, 2}]} = Piece.new(:t, false, 2, G.color())
       assert %Piece{points: [{1, 2}, {2, 2}, {3, 2}, {2, 1}]} = Piece.new(:t, false, 3, G.color())
     end
+
+    test "it mirrors an I" do
+      assert %Piece{points: [{3, 1}, {3, 2}, {3, 3}, {3, 4}]} = Piece.new(:i, true, 0, G.color())
+    end
+
+    test "it mirrors an L" do
+      assert %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {1, 3}]} = Piece.new(:l, true, 0, G.color())
+    end
+
+    test "it mirrors an O" do
+      assert %Piece{points: [{2, 1}, {1, 1}, {2, 2}, {1, 2}]} = Piece.new(:o, true, 0, G.color())
+    end
+
+    test "it mirrors a T" do
+      assert %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {1, 2}]} = Piece.new(:t, true, 0, G.color())
+    end
+
+    test "it mirrors a Z" do
+      assert %Piece{points: [{3, 1}, {2, 1}, {2, 2}, {1, 2}]} = Piece.new(:z, true, 0, G.color())
+    end
   end
 
   describe "#rotate_right/1" do

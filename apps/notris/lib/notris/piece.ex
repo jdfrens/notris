@@ -30,13 +30,11 @@ defmodule Notris.Piece do
   }
 
   @spec new(shape(), boolean(), rotation_integer(), color()) :: t()
-  def new(shape, _mirror, rotate, color) do
+  def new(shape, mirror, rotate, color) do
     points =
-      @point_grids[shape]
-      |> Stream.iterate(fn points -> Enum.map(points, &rotate_point_right(shape, &1)) end)
-      |> Stream.drop(rotate)
-      |> Enum.take(1)
-      |> List.first()
+      points_for(shape)
+      |> mirror(shape, mirror)
+      |> rotate_new_points(shape, rotate)
 
     %__MODULE__{
       shape: shape,
@@ -67,6 +65,26 @@ defmodule Notris.Piece do
       |> Kernel.<>("\n")
     end
     |> Enum.join()
+  end
+
+  defp points_for(shape) do
+    @point_grids[shape]
+  end
+
+  defp mirror(points, _shape, false), do: points
+
+  defp mirror(points, shape, true) do
+    Enum.map(points, fn {col, row} ->
+      {grid_size(shape) + 1 - col, row}
+    end)
+  end
+
+  defp rotate_new_points(points, shape, rotate) do
+    points
+    |> Stream.iterate(fn points -> Enum.map(points, &rotate_point_right(shape, &1)) end)
+    |> Stream.drop(rotate)
+    |> Enum.take(1)
+    |> List.first()
   end
 
   defp rotate_point_right(shape, {col, row}) do
