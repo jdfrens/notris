@@ -56,6 +56,7 @@ defmodule Notris.Piece do
     %{piece | points: rotated_points}
   end
 
+  @spec to_glyph(t()) :: String.t()
   def to_glyph(piece) do
     for row <- 1..4 do
       for col <- 1..4 do
