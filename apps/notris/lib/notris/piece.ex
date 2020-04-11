@@ -47,6 +47,12 @@ defmodule Notris.Piece do
     %{piece | points: rotated_points}
   end
 
+  @spec rotate_left(t()) :: t()
+  def rotate_left(piece) do
+    rotated_points = Enum.map(piece.points, &rotate_point_left(piece.shape, &1))
+    %{piece | points: rotated_points}
+  end
+
   def to_glyph(piece) do
     for row <- 1..4 do
       for col <- 1..4 do
@@ -60,6 +66,10 @@ defmodule Notris.Piece do
 
   defp rotate_point_right(shape, {col, row}) do
     {grid_size(shape) + 1 - row, col}
+  end
+
+  defp rotate_point_left(shape, {col, row}) do
+    {row, grid_size(shape) + 1 - col}
   end
 
   defp grid_size(:i), do: 4
