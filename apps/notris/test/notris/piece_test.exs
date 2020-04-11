@@ -32,6 +32,13 @@ defmodule Notris.PieceTest do
     test "it builds a Z" do
       assert %Piece{points: [{1, 1}, {2, 1}, {2, 2}, {3, 2}]} = Piece.new(:z, false, 0, G.color())
     end
+
+    test "it rotates to the right n times" do
+      assert %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {3, 2}]} = Piece.new(:t, false, 0, G.color())
+      assert %Piece{points: [{3, 2}, {2, 2}, {1, 2}, {2, 3}]} = Piece.new(:t, false, 1, G.color())
+      assert %Piece{points: [{2, 3}, {2, 2}, {2, 1}, {1, 2}]} = Piece.new(:t, false, 2, G.color())
+      assert %Piece{points: [{1, 2}, {2, 2}, {3, 2}, {2, 1}]} = Piece.new(:t, false, 3, G.color())
+    end
   end
 
   describe "#rotate_right/1" do
