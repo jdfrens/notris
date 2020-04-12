@@ -5,12 +5,11 @@ defmodule Notris.Piece do
 
   alias Notris.{Color, Point, Rotation, Shape}
 
-  @enforce_keys ~w(shape location points color)a
-  defstruct ~w(shape location points color)a
+  @enforce_keys ~w(shape points color)a
+  defstruct ~w(shape points color)a
 
   @type t :: %__MODULE__{
           shape: Shape.t(),
-          location: Point.game_point(),
           points: list(Point.piece_point()),
           color: Color.t()
         }
@@ -36,7 +35,6 @@ defmodule Notris.Piece do
 
       piece = %__MODULE__{
         shape: shape,
-        location: {4, 4},
         points: points,
         color: color
       }
