@@ -23,7 +23,7 @@ defmodule Notris.PropertyTestGenerators do
   """
   @spec shape :: :proper_types.type()
   def shape do
-    oneof(~w(i l o t z)a)
+    oneof(~w(i l ml o s t z)a)
   end
 
   @doc """

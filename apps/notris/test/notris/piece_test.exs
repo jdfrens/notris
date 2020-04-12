@@ -21,8 +21,17 @@ defmodule Notris.PieceTest do
       assert %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {3, 3}]} = Piece.new(:l, false, 0, G.color())
     end
 
+    test "it builds a mirror L" do
+      assert %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {1, 3}]} =
+               Piece.new(:ml, false, 0, G.color())
+    end
+
     test "it builds an O" do
       assert %Piece{points: [{1, 1}, {2, 1}, {1, 2}, {2, 2}]} = Piece.new(:o, false, 0, G.color())
+    end
+
+    test "it builds an S" do
+      assert %Piece{points: [{2, 1}, {3, 1}, {1, 2}, {2, 2}]} = Piece.new(:s, false, 0, G.color())
     end
 
     test "it builds a T" do
@@ -72,9 +81,19 @@ defmodule Notris.PieceTest do
       assert [{3, 2}, {2, 2}, {1, 2}, {1, 3}] = Piece.rotate_right(l).points
     end
 
+    test "rotates a mirror L" do
+      ml = Piece.new(:ml, false, 0, G.color())
+      assert [{3, 2}, {2, 2}, {1, 2}, {1, 1}] = Piece.rotate_right(ml).points
+    end
+
     test "rotates an O" do
       o = Piece.new(:o, false, 0, G.color())
       assert [{2, 1}, {2, 2}, {1, 1}, {1, 2}] = Piece.rotate_right(o).points
+    end
+
+    test "rotates an S" do
+      z = Piece.new(:s, false, 0, G.color())
+      assert [{3, 2}, {3, 3}, {2, 1}, {2, 2}] = Piece.rotate_right(z).points
     end
 
     test "rotates a T" do
@@ -99,9 +118,19 @@ defmodule Notris.PieceTest do
       assert [{1, 2}, {2, 2}, {3, 2}, {3, 1}] = Piece.rotate_left(l).points
     end
 
+    test "rotates a mirror L" do
+      ml = Piece.new(:ml, false, 0, G.color())
+      assert [{1, 2}, {2, 2}, {3, 2}, {3, 3}] = Piece.rotate_left(ml).points
+    end
+
     test "rotates an O" do
       o = Piece.new(:o, false, 0, G.color())
       assert [{1, 2}, {1, 1}, {2, 2}, {2, 1}] = Piece.rotate_left(o).points
+    end
+
+    test "rotates an S" do
+      s = Piece.new(:s, false, 0, G.color())
+      assert [{1, 2}, {1, 1}, {2, 3}, {2, 2}] = Piece.rotate_left(s).points
     end
 
     test "rotates a T" do
