@@ -40,7 +40,8 @@ defmodule Notris.PropertyTestGenerators do
   @spec piece :: :proper_types.type()
   def piece do
     let {shape, rotate, color} <- {shape(), rotation(), color()} do
-      Piece.new(shape, rotate, color)
+      {:ok, piece} = Piece.new(shape, rotate, color)
+      piece
     end
   end
 end

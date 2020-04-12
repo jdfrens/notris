@@ -25,18 +25,24 @@ defmodule Notris.Piece do
     z: [{1, 1}, {2, 1}, {2, 2}, {3, 2}]
   }
 
-    points =
-      points_for(shape)
   @spec new(Shape.t(), Rotation.t(), Color.t()) :: {:ok, t()}
   def new(shape, rotation, color) do
+    with :ok <- Shape.valid?(shape),
+         :ok <- Rotation.valid?(rotation),
+         :ok <- Color.valid?(color) do
+      points =
+        points_for(shape)
         |> rotate_new_points(shape, rotation)
 
-    %__MODULE__{
-      shape: shape,
-      location: {4, 4},
-      points: points,
-      color: color
-    }
+      piece = %__MODULE__{
+        shape: shape,
+        location: {4, 4},
+        points: points,
+        color: color
+      }
+
+      {:ok, piece}
+    end
   end
 
   @spec rotate_right(t()) :: t()
