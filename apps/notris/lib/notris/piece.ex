@@ -3,20 +3,16 @@ defmodule Notris.Piece do
   A `Notris.Piece` is the thing that falls that the user gets to control.
   """
 
+  alias Notris.{Color, Point, Rotation, Shape}
+
   @enforce_keys ~w(shape location points color)a
   defstruct ~w(shape location points color)a
 
-  @type location :: {pos_integer(), pos_integer()}
-  @type point :: {pos_integer(), pos_integer()}
-  @type points :: list(point())
-  @type color :: atom()
-  @type shape :: atom()
-  @type rotation_integer :: integer()
   @type t :: %__MODULE__{
-          shape: shape(),
-          location: location(),
-          points: points(),
-          color: color()
+          shape: Shape.t(),
+          location: Point.game_point(),
+          points: list(Point.piece_point()),
+          color: Color.t()
         }
 
   @point_grids %{
@@ -29,11 +25,11 @@ defmodule Notris.Piece do
     z: [{1, 1}, {2, 1}, {2, 2}, {3, 2}]
   }
 
-  @spec new(shape(), rotation_integer(), color()) :: t()
-  def new(shape, rotate, color) do
     points =
       points_for(shape)
-      |> rotate_new_points(shape, rotate)
+  @spec new(Shape.t(), Rotation.t(), Color.t()) :: {:ok, t()}
+  def new(shape, rotation, color) do
+        |> rotate_new_points(shape, rotation)
 
     %__MODULE__{
       shape: shape,
