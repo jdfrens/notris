@@ -8,14 +8,22 @@ defmodule Notris.PropertyTestGenerators do
 
   use PropCheck
 
-  alias Notris.Piece
+  alias Notris.{Color, Piece, Rotation, Shape}
+
+  @doc """
+  Generates a valid color.
+  """
+  @spec color :: :proper_types.type()
+  def color do
+    oneof(Color.values())
+  end
 
   @doc """
   Generates 0, 1, 2, or 3, the number of right rotations to apply.
   """
   @spec rotation :: :proper_types.type()
   def rotation do
-    choose(0, 3)
+    oneof(Rotation.values())
   end
 
   @doc """
@@ -23,15 +31,7 @@ defmodule Notris.PropertyTestGenerators do
   """
   @spec shape :: :proper_types.type()
   def shape do
-    oneof(~w(i l ml o s t z)a)
-  end
-
-  @doc """
-  Generates a valid color.
-  """
-  @spec color :: :proper_types.type()
-  def color do
-    oneof(~w(red green blue orange)a)
+    oneof(Shape.values())
   end
 
   @doc """
