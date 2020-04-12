@@ -35,20 +35,12 @@ defmodule Notris.PropertyTestGenerators do
   end
 
   @doc """
-  Generates a boolean: to mirror or not to mirror.
-  """
-  @spec mirror :: :proper_types.type()
-  def mirror do
-    boolean()
-  end
-
-  @doc """
   Generates a `Notris.Piece.t()`.
   """
   @spec piece :: :proper_types.type()
   def piece do
-    let {shape, mirror, rotate, color} <- {shape(), mirror(), rotation(), color()} do
-      Piece.new(shape, mirror, rotate, color)
+    let {shape, rotate, color} <- {shape(), rotation(), color()} do
+      Piece.new(shape, rotate, color)
     end
   end
 end

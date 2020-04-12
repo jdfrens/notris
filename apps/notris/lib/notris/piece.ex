@@ -29,11 +29,10 @@ defmodule Notris.Piece do
     z: [{1, 1}, {2, 1}, {2, 2}, {3, 2}]
   }
 
-  @spec new(shape(), boolean(), rotation_integer(), color()) :: t()
-  def new(shape, mirror, rotate, color) do
+  @spec new(shape(), rotation_integer(), color()) :: t()
+  def new(shape, rotate, color) do
     points =
       points_for(shape)
-      |> mirror(shape, mirror)
       |> rotate_new_points(shape, rotate)
 
     %__MODULE__{
@@ -70,14 +69,6 @@ defmodule Notris.Piece do
 
   defp points_for(shape) do
     @point_grids[shape]
-  end
-
-  defp mirror(points, _shape, false), do: points
-
-  defp mirror(points, shape, true) do
-    Enum.map(points, fn {col, row} ->
-      {grid_size(shape) + 1 - col, row}
-    end)
   end
 
   defp rotate_new_points(points, shape, rotate) do
