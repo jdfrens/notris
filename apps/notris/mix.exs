@@ -29,7 +29,9 @@ defmodule Notris.MixProject do
   defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
-    []
+    [
+      {:propcheck, "~> 1.1", only: [:test, :dev]}
+    ]
   end
 
   defp aliases do
