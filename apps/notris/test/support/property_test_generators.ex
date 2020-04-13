@@ -19,6 +19,16 @@ defmodule Notris.PropertyTestGenerators do
   end
 
   @doc """
+  Generates a valid location on a board.
+  """
+  @spec location :: :proper_types.type()
+  def location do
+    let {col, row} <- {pos_integer(), pos_integer()} do
+      {col, row}
+    end
+  end
+
+  @doc """
   Generates 0, 1, 2, or 3, the number of right rotations to apply.
   """
   @spec rotation :: :proper_types.type()

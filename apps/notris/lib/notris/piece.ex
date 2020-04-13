@@ -43,6 +43,11 @@ defmodule Notris.Piece do
     end
   end
 
+  @spec points_at(t(), Point.location()) :: list(Point.location())
+  def points_at(piece, {l_col, l_row} = _location) do
+    Enum.map(piece.points, fn {col, row} -> {col + l_col, row + l_row} end)
+  end
+
   @spec rotate_right(t()) :: t()
   def rotate_right(piece) do
     rotated_points = Enum.map(piece.points, &rotate_point_right(piece.shape, &1))

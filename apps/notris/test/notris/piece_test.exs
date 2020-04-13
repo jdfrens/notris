@@ -95,6 +95,24 @@ defmodule Notris.PieceTest do
     end
   end
 
+  describe "#points_at/1" do
+    # test one shape directly
+    test "offsets an S", %{some_color: some_color} do
+      {:ok, s} = Piece.new(:s, 0, some_color)
+      assert [{47, 24}, {48, 24}, {46, 25}, {47, 25}] == Piece.points_at(s, {45, 23})
+    end
+
+    property "offsets all of the points in the shape within 4x4 grid" do
+      forall {piece, {l_col, l_row} = location} <- {G.piece(), G.location()} do
+        locations = Piece.points_at(piece, location)
+
+        Enum.all?(locations, fn {col, row} ->
+          (col - l_col) in 0..4 and (row - l_row) in 0..4
+        end)
+      end
+    end
+  end
+
   describe "#rotate_right/1" do
     test "rotates an I", %{some_color: some_color} do
       {:ok, i} = Piece.new(:i, 0, some_color)
