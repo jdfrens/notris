@@ -1,19 +1,33 @@
 defmodule Notris.PropertyTestGenerators do
   @moduledoc """
   Generators from property tests.
-
-  NOTE: PropCheck bleeds out an opaque `:proper_types.type()` which makes it difficult to type check this well.  Many
-  entries in `.dialyzer_ignore.exs` are for this file.
   """
 
   use PropCheck
 
-  alias Notris.{Color, Piece, Rotation, Shape}
+  alias Notris.{Board, Color, Piece, Rotation, Shape}
+
+  @spec board :: BasicTypes.type()
+  def board do
+    let {width, height} <- {pos_integer(), pos_integer()} do
+      %Board{width: width + 5, height: height + 10, points: []}
+    end
+  end
+
+  @spec col_in(Board.t()) :: BasicTypes.type()
+  def col_in(%Board{width: width} = _board) do
+    choose(1, width)
+  end
+
+  @spec row_in(Board.t()) :: BasicTypes.type()
+  def row_in(%Board{height: height} = _board) do
+    choose(1, height)
+  end
 
   @doc """
   Generates a valid color.
   """
-  @spec color :: :proper_types.type()
+  @spec color :: BasicTypes.type()
   def color do
     oneof(Color.values())
   end
@@ -21,7 +35,7 @@ defmodule Notris.PropertyTestGenerators do
   @doc """
   Generates a valid location on a board.
   """
-  @spec location :: :proper_types.type()
+  @spec location :: BasicTypes.type()
   def location do
     let {col, row} <- {pos_integer(), pos_integer()} do
       {col, row}
@@ -31,7 +45,7 @@ defmodule Notris.PropertyTestGenerators do
   @doc """
   Generates 0, 1, 2, or 3, the number of right rotations to apply.
   """
-  @spec rotation :: :proper_types.type()
+  @spec rotation :: BasicTypes.type()
   def rotation do
     oneof(Rotation.values())
   end
@@ -39,7 +53,7 @@ defmodule Notris.PropertyTestGenerators do
   @doc """
   Generates a valid shape atom.
   """
-  @spec shape :: :proper_types.type()
+  @spec shape :: BasicTypes.type()
   def shape do
     oneof(Shape.values())
   end
@@ -47,7 +61,7 @@ defmodule Notris.PropertyTestGenerators do
   @doc """
   Generates a `Notris.Piece.t()`.
   """
-  @spec piece :: :proper_types.type()
+  @spec piece :: BasicTypes.type()
   def piece do
     let {shape, rotate, color} <- {shape(), rotation(), color()} do
       {:ok, piece} = Piece.new(shape, rotate, color)
