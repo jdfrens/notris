@@ -3,7 +3,7 @@ defmodule Notris.Board do
   Model for the board of a game.
   """
 
-  alias Notris.Point
+  alias Notris.{Board, Color, Piece, Point}
 
   @enforce_keys ~w(width height points)a
   defstruct width: 0, height: 0, points: %{}
@@ -35,7 +35,17 @@ defmodule Notris.Board do
   end
 
   @doc """
-  Checks if the `point` collides with a point on the `board`.
+  Adds a `piece` to the `board` at a `location`.
+  """
+  @spec add(t(), Point.location(), Piece.t()) :: t()
+  def add(board, location, piece) do
+    piece_locations = Piece.board_points_at(piece, location)
+    new_points = Map.merge(board.points, piece_locations)
+    %{board | points: new_points}
+  end
+
+  @doc """
+  Checks if the `point` collides with the boarder or a fallen point on the `board`.
   """
   @spec collides?(t(), Point.location()) :: boolean()
   def collides?(board, point) do
