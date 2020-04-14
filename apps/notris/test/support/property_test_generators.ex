@@ -10,16 +10,23 @@ defmodule Notris.PropertyTestGenerators do
   @spec empty_board :: PropCheck.BasicTypes.type()
   def empty_board do
     let {width, height} <- {pos_integer(), pos_integer()} do
-      %Board{width: width + 5, height: height + 10, points: []}
+      Board.new({width + 5, height + 10})
     end
   end
 
   @spec board :: PropCheck.BasicTypes.type()
   def board do
     let {width, height} <- {pos_integer(), pos_integer()} do
-      let locations <- locations(width, height) do
-        %Board{width: width + 5, height: height + 5, points: locations}
+      let board_points <- board_points(width, height) do
+        Board.new({width + 5, height + 5}, board_points)
       end
+    end
+  end
+
+  @spec board_points(pos_integer(), pos_integer()) :: PropCheck.BasicTypes.type()
+  def board_points(width, height) do
+    let locations_and_colors <- list({location(width, height), color()}) do
+      Enum.into(locations_and_colors, %{})
     end
   end
 

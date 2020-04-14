@@ -3,7 +3,7 @@ defmodule Notris.Piece do
   A `Notris.Piece` is the thing that falls that the user gets to control.
   """
 
-  alias Notris.{Color, Point, Rotation, Shape}
+  alias Notris.{Board, Color, Point, Rotation, Shape}
 
   @enforce_keys ~w(shape points color)a
   defstruct ~w(shape points color)a
@@ -43,9 +43,9 @@ defmodule Notris.Piece do
     end
   end
 
-  @spec points_at(t(), Point.location()) :: list(Point.location())
-  def points_at(piece, {l_col, l_row} = _location) do
-    Enum.map(piece.points, fn {col, row} -> {col + l_col, row + l_row} end)
+  @spec board_points_at(t(), Point.location()) :: Board.board_points()
+  def board_points_at(piece, {l_col, l_row} = _location) do
+    Enum.into(piece.points, %{}, fn {col, row} -> {{col + l_col, row + l_row}, piece.color} end)
   end
 
   @spec rotate_right(t()) :: t()
