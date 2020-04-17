@@ -10,7 +10,8 @@ defmodule Notris.PropertyTestGenerators do
   @spec empty_board :: PropCheck.BasicTypes.type()
   def empty_board do
     let {width, height} <- {pos_integer(), pos_integer()} do
-      Board.new({width + 5, height + 10})
+      {:ok, board} = Board.new({width + 5, height + 10})
+      board
     end
   end
 
@@ -18,7 +19,8 @@ defmodule Notris.PropertyTestGenerators do
   def board do
     let {width, height} <- {pos_integer(), pos_integer()} do
       let board_points <- board_points(width, height) do
-        Board.new({width + 5, height + 5}, board_points)
+        {:ok, board} = Board.new({width + 5, height + 5}, board_points)
+        board
       end
     end
   end

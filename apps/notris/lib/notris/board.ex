@@ -30,7 +30,7 @@ defmodule Notris.Board do
     with :ok <- valid_width(width),
          :ok <- valid_height(height),
          :ok <- valid_board_points(board_points) do
-      %Board{width: width, height: height, points: board_points}
+      {:ok, %Board{width: width, height: height, points: board_points}}
     end
   end
 

@@ -8,9 +8,15 @@ defmodule Notris.BoardTest do
   describe "add/2" do
     test "add an S to a board" do
       {:ok, piece} = Piece.new(:s, 0, :red)
-      board = Board.add(Board.new({10, 10}), {2, 3}, piece)
+      {:ok, board} = Board.new({10, 10})
+      board_with_s_piece = Board.add(board, {2, 3}, piece)
 
-      assert board.points == %{{3, 5} => :red, {4, 4} => :red, {4, 5} => :red, {5, 4} => :red}
+      assert board_with_s_piece.points == %{
+               {3, 5} => :red,
+               {4, 4} => :red,
+               {4, 5} => :red,
+               {5, 4} => :red
+             }
     end
 
     property "number of points on board must be leq to 4 times the number of pieces" do
