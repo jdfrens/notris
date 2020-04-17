@@ -44,8 +44,15 @@ defmodule Notris.Piece do
   end
 
   @spec board_points_at(t(), Point.location()) :: Board.board_points()
-  def board_points_at(piece, {l_col, l_row} = _location) do
-    Enum.into(piece.points, %{}, fn {col, row} -> {{col + l_col, row + l_row}, piece.color} end)
+  def board_points_at(piece, location) do
+    piece
+    |> points_at(location)
+    |> Enum.into(%{}, &{&1, piece.color})
+  end
+
+  @spec points_at(t(), Point.location()) :: list(Point.location())
+  def points_at(piece, {l_col, l_row}) do
+    Enum.map(piece.points, fn {col, row} -> {col + l_col, row + l_row} end)
   end
 
   @spec rotate_right(t()) :: t()
