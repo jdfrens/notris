@@ -45,14 +45,14 @@ defmodule Notris.Board do
   end
 
   @doc """
-  Checks if the `point` collides with the boarder or a fallen point on the `board`.
+  Checks if the `point` collides with the border or a fallen point on the `board`.
   """
   @spec collides?(t(), Point.location()) :: boolean()
   def collides?(board, point) do
-    collides_boarder?(board, point) or point in board.points
+    collides_border?(board, point) or point in board.points
   end
 
-  defp collides_boarder?(board, {col, row}) do
+  defp collides_border?(board, {col, row}) do
     col not in 1..board.width or row not in 1..board.height
   end
 
