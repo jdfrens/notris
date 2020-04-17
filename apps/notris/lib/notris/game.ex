@@ -31,4 +31,28 @@ defmodule Notris.Game do
   def add(%Game{piece: nil, location: nil} = game, %Piece{} = piece, location) do
     %{game | piece: piece, location: location}
   end
+
+  @doc """
+  Maybe moves the current piece to the left.
+
+  The game is updated with the new location if the piece _can_ be moved to the left.  If it cannot be moved to the left,
+  the same game is returned.
+  """
+  @spec maybe_move_left(t()) :: t()
+  def maybe_move_left(game) do
+    %Game{board: board, piece: piece, location: {col, row}} = game
+    maybe_location = {col - 1, row}
+
+    if collides?(board, piece, maybe_location) do
+      game
+    else
+      %{game | location: maybe_location}
+    end
+  end
+
+  defp collides?(board, piece, location) do
+    piece
+    |> Piece.points_at(location)
+    |> Enum.any?(&Board.collides?(board, &1))
+  end
 end
