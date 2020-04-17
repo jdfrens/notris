@@ -40,14 +40,7 @@ defmodule Notris.Game do
   """
   @spec maybe_move_left(t()) :: t()
   def maybe_move_left(game) do
-    %Game{board: board, piece: piece, location: {col, row}} = game
-    maybe_location = {col - 1, row}
-
-    if collides?(board, piece, maybe_location) do
-      game
-    else
-      %{game | location: maybe_location}
-    end
+    maybe_move_horizontal(game, -1)
   end
 
   @doc """
@@ -58,8 +51,12 @@ defmodule Notris.Game do
   """
   @spec maybe_move_right(t()) :: t()
   def maybe_move_right(game) do
+    maybe_move_horizontal(game, +1)
+  end
+
+  defp maybe_move_horizontal(game, offset) do
     %Game{board: board, piece: piece, location: {col, row}} = game
-    maybe_location = {col + 1, row}
+    maybe_location = {col + offset, row}
 
     if collides?(board, piece, maybe_location) do
       game
