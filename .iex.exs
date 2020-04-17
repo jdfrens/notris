@@ -1,1 +1,1 @@
-alias Notris.Piece
+alias Notris.{Board, Game, Piece}
