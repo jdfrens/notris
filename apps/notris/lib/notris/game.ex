@@ -50,6 +50,24 @@ defmodule Notris.Game do
     end
   end
 
+  @doc """
+  Maybe moves the current piece to the right.
+
+  The game is updated with the new location if the piece _can_ be moved to the right.  If it cannot be moved to the right,
+  the same game is returned.
+  """
+  @spec maybe_move_right(t()) :: t()
+  def maybe_move_right(game) do
+    %Game{board: board, piece: piece, location: {col, row}} = game
+    maybe_location = {col + 1, row}
+
+    if collides?(board, piece, maybe_location) do
+      game
+    else
+      %{game | location: maybe_location}
+    end
+  end
+
   defp collides?(board, piece, location) do
     piece
     |> Piece.points_at(location)

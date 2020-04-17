@@ -35,4 +35,33 @@ defmodule Notris.GameTest do
       end
     end
   end
+
+  describe "#maybe_move_right" do
+    property "moves right until it hits the right border" do
+      {:ok, board} = Board.new({10, 10})
+      {:ok, piece} = Piece.new(:o, 0, :red)
+
+      last_col = board.width - @width_of_o
+      last_row = board.height - @height_of_o
+
+      forall {col, row} = location <- {choose(1, last_col), choose(1, last_row)} do
+        original_game = board |> Game.new() |> Game.add(piece, location)
+
+        games =
+          Stream.iterate(original_game, fn game ->
+            Game.maybe_move_right(game)
+          end)
+
+        num_moved = board.width - col + 1 - @width_of_o
+        moved = games |> Enum.take(num_moved)
+        last_moved = moved |> List.last()
+        first_unmoved = games |> Stream.drop(num_moved) |> Enum.take(1) |> List.first()
+
+        (Enum.map(moved, fn g -> g.location |> elem(0) end) ==
+           Enum.to_list(col..(board.width - 2)))
+        |> Kernel.and(last_moved.location == {board.width - 2, row})
+        |> Kernel.and(first_unmoved.location == {board.width - 2, row})
+      end
+    end
+  end
 end
