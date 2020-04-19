@@ -3,20 +3,17 @@ defmodule Notris.GameTest do
   use PropCheck
 
   alias Notris.{Board, Game, Piece}
+  alias Notris.PropertyTestGenerators, as: G
 
   # important limits when placing and moving an O shape
   @width_of_o 2
-  @height_of_o 2
 
-  describe "#maybe_move_left" do
+  describe "maybe_move_left/1" do
     property "moves left until it hits the left border" do
       {:ok, board} = Board.new({10, 10})
       {:ok, piece} = Piece.new(:o, 0, :red)
 
-      last_col = board.width - @width_of_o
-      last_row = board.height - @height_of_o
-
-      forall {col, row} = location <- {choose(1, last_col), choose(1, last_row)} do
+      forall {col, row} = location <- G.location_for(piece, board.width, board.height) do
         original_game = board |> Game.new() |> Game.add(piece, location)
 
         games =
@@ -36,15 +33,12 @@ defmodule Notris.GameTest do
     end
   end
 
-  describe "#maybe_move_right" do
+  describe "maybe_move_right/1" do
     property "moves right until it hits the right border" do
       {:ok, board} = Board.new({10, 10})
       {:ok, piece} = Piece.new(:o, 0, :red)
 
-      last_col = board.width - @width_of_o
-      last_row = board.height - @height_of_o
-
-      forall {col, row} = location <- {choose(1, last_col), choose(1, last_row)} do
+      forall {col, row} = location <- G.location_for(piece, board.width, board.height) do
         original_game = board |> Game.new() |> Game.add(piece, location)
 
         games =
