@@ -53,12 +53,51 @@ defmodule Notris.GameTest do
         last_moved = moved |> List.last()
         first_unmoved = games |> Stream.drop(num_moved) |> Enum.take(1) |> List.first()
 
-        last_location = Location.new(board.width - 2, location.row)
+        last_location = Location.new(board.width - @width_of_o, location.row)
 
         (Enum.map(moved, fn g -> g.location.col end) ==
            Enum.to_list(location.col..(board.width - 2)))
         |> Kernel.and(last_moved.location == last_location)
         |> Kernel.and(first_unmoved.location == last_location)
+      end
+    end
+  end
+
+  describe "maybe_move_down/1" do
+    property "moves down until it hits the bottom" do
+      {:ok, empty_board} = Board.new({10, 10})
+      # fill two rows at the bottom
+      board = G.fill_bottom(empty_board, 2)
+
+      {:ok, piece} = Piece.new(:o, 0, :red)
+
+      forall col <- choose(1, 10 - @width_of_o) do
+        # start off the board
+        location = Location.new(col, -2)
+        original_game = board |> Game.new() |> Game.add(piece, location)
+
+        games =
+          Stream.iterate(original_game, fn game ->
+            Game.maybe_move_down(game)
+          end)
+
+        interesting_steps =
+          games
+          |> Enum.take(10)
+
+        Enum.map(interesting_steps, & &1.location) ==
+          [
+            Location.new(col, -2),
+            Location.new(col, -1),
+            Location.new(col, 0),
+            Location.new(col, 1),
+            Location.new(col, 2),
+            Location.new(col, 3),
+            Location.new(col, 4),
+            Location.new(col, 5),
+            Location.new(col, 6),
+            nil
+          ]
       end
     end
   end

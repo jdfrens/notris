@@ -38,6 +38,18 @@ defmodule Notris.PropertyTestGenerators do
     end
   end
 
+  @spec fill_bottom(Board.t(), non_neg_integer()) :: Board.t()
+  def fill_bottom(board, num_rows) do
+    %Board{width: width, height: height} = board
+
+    bottom =
+      for col <- 1..width, row <- (height - num_rows + 1)..height, into: %{} do
+        {Location.new(col, row), Enum.random(Color.values())}
+      end
+
+    %{board | bottom: bottom}
+  end
+
   @spec col_in(Board.t()) :: pc_type()
   def col_in(%Board{width: width} = _board) do
     choose(1, width)

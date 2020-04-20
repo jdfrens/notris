@@ -28,7 +28,7 @@ defmodule Notris.Game do
   There can be _no_ current piece when this function is called.
   """
   @spec add(t(), Piece.t(), Location.t()) :: t()
-  def add(%Game{piece: nil, location: nil} = game, %Piece{} = piece, location) do
+  def add(%Game{piece: nil, location: nil} = game, %Piece{} = piece, %Location{} = location) do
     %{game | piece: piece, location: location}
   end
 
@@ -52,6 +52,24 @@ defmodule Notris.Game do
   @spec maybe_move_right(t()) :: t()
   def maybe_move_right(game) do
     maybe_move_horizontal(game, Offset.new(+1, 0))
+  end
+
+  @doc """
+  Maybe moves the current piece down.
+
+  The game is updated with the new location if the piece _can_ be moved down.  If it cannot be moved down, piece is
+  added to the bottom of the board while the `piece` and `location` are both set to `nil`.
+  """
+  @spec maybe_move_down(t()) :: t()
+  def maybe_move_down(%Game{} = game) do
+    %Game{board: board, piece: piece, location: location} = game
+    maybe_location = Location.new(location.col, location.row + 1)
+
+    if collides?(board, piece, maybe_location) do
+      %{game | piece: nil, location: nil}
+    else
+      %{game | location: maybe_location}
+    end
   end
 
   @spec maybe_move_horizontal(Game.t(), Offset.t()) :: Game.t()
