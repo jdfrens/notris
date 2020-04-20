@@ -31,6 +31,7 @@ defmodule Notris.GameTest do
         (Enum.map(moved, fn g -> g.location.col end) == Enum.to_list(location.col..0))
         |> Kernel.and(last_moved.location == last_location)
         |> Kernel.and(first_unmoved.location == last_location)
+        |> Kernel.and(Enum.all?(moved, fn g -> not g.game_over end))
       end
     end
   end
@@ -59,6 +60,7 @@ defmodule Notris.GameTest do
            Enum.to_list(location.col..(board.width - 2)))
         |> Kernel.and(last_moved.location == last_location)
         |> Kernel.and(first_unmoved.location == last_location)
+        |> Kernel.and(Enum.all?(moved, fn g -> not g.game_over end))
       end
     end
   end
@@ -97,7 +99,26 @@ defmodule Notris.GameTest do
             Location.new(col, 5),
             Location.new(col, 6),
             nil
-          ]
+          ] and Enum.all?(interesting_steps, fn g -> not g.game_over end)
+      end
+    end
+
+    property "game over if piece cannot drop and is above the top" do
+      {:ok, empty_board} = Board.new({10, 3})
+      # fill two rows at the bottom, leaving one empty
+      board = G.fill_bottom(empty_board, 2)
+
+      {:ok, piece} = Piece.new(:o, 0, :red)
+
+      forall col <- choose(1, 10 - @width_of_o) do
+        # start off the board
+        location = Location.new(col, -2)
+
+        original_game = board |> Game.new() |> Game.add(piece, location)
+        one_down_game = Game.maybe_move_down(original_game)
+        over_game = Game.maybe_move_down(one_down_game)
+
+        not original_game.game_over and not one_down_game.game_over and over_game.game_over
       end
     end
   end
