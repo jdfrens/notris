@@ -4,7 +4,7 @@ defmodule Notris.PieceTest do
 
   alias Notris.PropertyTestGenerators, as: G
 
-  alias Notris.{Color, Piece, Rotation, Shape}
+  alias Notris.{Color, Location, Offset, Piece, Rotation, Shape}
 
   setup do
     some_color = Enum.random(Color.values())
@@ -12,7 +12,7 @@ defmodule Notris.PieceTest do
     {:ok, some_color: some_color}
   end
 
-  describe "#new/3 validations" do
+  describe "new/3 validations" do
     property "validates the shape" do
       bad_shape = such_that s <- atom(), when: s not in Shape.values()
 
@@ -38,7 +38,7 @@ defmodule Notris.PieceTest do
     end
   end
 
-  describe "#new/3" do
+  describe "new/3" do
     property "uses the color" do
       forall {shape, rotation, color} <- {G.shape(), G.rotation(), G.color()} do
         match?({:ok, %Piece{color: ^color}}, Piece.new(shape, rotation, color))
@@ -46,166 +46,195 @@ defmodule Notris.PieceTest do
     end
 
     test "it builds an I", %{some_color: some_color} do
-      assert {:ok, %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {2, 4}]}} =
-               Piece.new(:i, 0, some_color)
+      {:ok, piece} = Piece.new(:i, 0, some_color)
+      assert piece.offsets == [{2, 1}, {2, 2}, {2, 3}, {2, 4}] |> Offset.to_offsets()
     end
 
     test "it builds an L", %{some_color: some_color} do
-      assert {:ok, %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {3, 3}]}} =
-               Piece.new(:l, 0, some_color)
+      {:ok, piece} = Piece.new(:l, 0, some_color)
+      assert piece.offsets == [{2, 1}, {2, 2}, {2, 3}, {3, 3}] |> Offset.to_offsets()
     end
 
     test "it builds a mirror L", %{some_color: some_color} do
-      assert {:ok, %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {1, 3}]}} =
-               Piece.new(:ml, 0, some_color)
+      {:ok, piece} = Piece.new(:ml, 0, some_color)
+      assert piece.offsets == [{2, 1}, {2, 2}, {2, 3}, {1, 3}] |> Offset.to_offsets()
     end
 
     test "it builds an O", %{some_color: some_color} do
-      assert {:ok, %Piece{points: [{1, 1}, {2, 1}, {1, 2}, {2, 2}]}} =
-               Piece.new(:o, 0, some_color)
+      {:ok, piece} = Piece.new(:o, 0, some_color)
+      assert piece.offsets == [{1, 1}, {2, 1}, {1, 2}, {2, 2}] |> Offset.to_offsets()
     end
 
     test "it builds an S", %{some_color: some_color} do
-      assert {:ok, %Piece{points: [{2, 1}, {3, 1}, {1, 2}, {2, 2}]}} =
-               Piece.new(:s, 0, some_color)
+      {:ok, piece} = Piece.new(:s, 0, some_color)
+      assert piece.offsets == [{2, 1}, {3, 1}, {1, 2}, {2, 2}] |> Offset.to_offsets()
     end
 
     test "it builds a T", %{some_color: some_color} do
-      assert {:ok, %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {3, 2}]}} =
-               Piece.new(:t, 0, some_color)
+      {:ok, piece} = Piece.new(:t, 0, some_color)
+      assert piece.offsets == [{2, 1}, {2, 2}, {2, 3}, {3, 2}] |> Offset.to_offsets()
     end
 
     test "it builds a Z", %{some_color: some_color} do
-      assert {:ok, %Piece{points: [{1, 1}, {2, 1}, {2, 2}, {3, 2}]}} =
-               Piece.new(:z, 0, some_color)
+      {:ok, piece} = Piece.new(:z, 0, some_color)
+      assert piece.offsets == [{1, 1}, {2, 1}, {2, 2}, {3, 2}] |> Offset.to_offsets()
     end
 
     test "it rotates to the right n times", %{some_color: some_color} do
-      assert {:ok, %Piece{points: [{2, 1}, {2, 2}, {2, 3}, {3, 2}]}} =
-               Piece.new(:t, 0, some_color)
+      {:ok, piece0} = Piece.new(:t, 0, some_color)
+      assert piece0.offsets == [{2, 1}, {2, 2}, {2, 3}, {3, 2}] |> Offset.to_offsets()
 
-      assert {:ok, %Piece{points: [{3, 2}, {2, 2}, {1, 2}, {2, 3}]}} =
-               Piece.new(:t, 1, some_color)
+      {:ok, piece1} = Piece.new(:t, 1, some_color)
+      assert piece1.offsets == [{3, 2}, {2, 2}, {1, 2}, {2, 3}] |> Offset.to_offsets()
 
-      assert {:ok, %Piece{points: [{2, 3}, {2, 2}, {2, 1}, {1, 2}]}} =
-               Piece.new(:t, 2, some_color)
+      {:ok, piece2} = Piece.new(:t, 2, some_color)
+      assert piece2.offsets == [{2, 3}, {2, 2}, {2, 1}, {1, 2}] |> Offset.to_offsets()
 
-      assert {:ok, %Piece{points: [{1, 2}, {2, 2}, {3, 2}, {2, 1}]}} =
-               Piece.new(:t, 3, some_color)
+      {:ok, piece3} = Piece.new(:t, 3, some_color)
+      assert piece3.offsets == [{1, 2}, {2, 2}, {3, 2}, {2, 1}] |> Offset.to_offsets()
     end
   end
 
-  describe "#board_points_at/1" do
+  describe "to_bottom/1" do
     # test one shape directly
     test "offsets an S", %{some_color: some_color} do
       {:ok, s} = Piece.new(:s, 0, some_color)
 
-      assert Piece.board_points_at(s, {45, 23}) == %{
-               {47, 24} => some_color,
-               {48, 24} => some_color,
-               {46, 25} => some_color,
-               {47, 25} => some_color
+      assert Piece.to_bottom(s, Location.new(45, 23)) == %{
+               %Location{col: 47, row: 24} => some_color,
+               %Location{col: 48, row: 24} => some_color,
+               %Location{col: 46, row: 25} => some_color,
+               %Location{col: 47, row: 25} => some_color
              }
     end
 
-    property "uses piece color for all points" do
+    property "uses piece color for all locations on the bottom" do
       forall {piece, location} <- {G.piece(), G.location()} do
-        board_points = Piece.board_points_at(piece, location)
-        board_points |> Map.values() |> Enum.uniq() == [piece.color]
+        bottom = Piece.to_bottom(piece, location)
+        bottom |> Map.values() |> Enum.uniq() == [piece.color]
       end
     end
   end
 
-  describe "#points_at/1" do
+  describe "locations_at/1" do
     # test one shape directly
     test "offsets an S", %{some_color: some_color} do
       {:ok, s} = Piece.new(:s, 0, some_color)
 
-      assert Piece.points_at(s, {45, 23}) == [{47, 24}, {48, 24}, {46, 25}, {47, 25}]
+      assert Piece.locations_at(s, Location.new(45, 23)) ==
+               [{47, 24}, {48, 24}, {46, 25}, {47, 25}] |> Location.to_locations()
     end
 
-    property "offsets all of the points in the shape within 4x4 grid" do
-      forall {piece, {l_col, l_row} = location} <- {G.piece(), G.location()} do
-        points = Piece.points_at(piece, location)
+    property "offsets the shape within 4x4 grid" do
+      forall {piece, location} <- {G.piece(), G.location()} do
+        piece_locations = Piece.locations_at(piece, location)
 
-        Enum.all?(points, fn {col, row} ->
-          (col - l_col) in 0..4 and (row - l_row) in 0..4
+        Enum.all?(piece_locations, fn %Location{} = pl ->
+          (pl.col - location.col) in 1..4 and (pl.row - location.row) in 1..4
         end)
       end
     end
   end
 
-  describe "#rotate_right/1" do
+  describe "rotate_right/1" do
     test "rotates an I", %{some_color: some_color} do
       {:ok, i} = Piece.new(:i, 0, some_color)
-      assert [{4, 2}, {3, 2}, {2, 2}, {1, 2}] = Piece.rotate_right(i).points
+
+      assert [{4, 2}, {3, 2}, {2, 2}, {1, 2}] |> Offset.to_offsets() ==
+               Piece.rotate_right(i).offsets
     end
 
     test "rotates an L", %{some_color: some_color} do
       {:ok, l} = Piece.new(:l, 0, some_color)
-      assert [{3, 2}, {2, 2}, {1, 2}, {1, 3}] = Piece.rotate_right(l).points
+
+      assert [{3, 2}, {2, 2}, {1, 2}, {1, 3}] |> Offset.to_offsets() ==
+               Piece.rotate_right(l).offsets
     end
 
     test "rotates a mirror L", %{some_color: some_color} do
       {:ok, ml} = Piece.new(:ml, 0, some_color)
-      assert [{3, 2}, {2, 2}, {1, 2}, {1, 1}] = Piece.rotate_right(ml).points
+
+      assert [{3, 2}, {2, 2}, {1, 2}, {1, 1}] |> Offset.to_offsets() ==
+               Piece.rotate_right(ml).offsets
     end
 
     test "rotates an O", %{some_color: some_color} do
       {:ok, o} = Piece.new(:o, 0, some_color)
-      assert [{2, 1}, {2, 2}, {1, 1}, {1, 2}] = Piece.rotate_right(o).points
+
+      assert [{2, 1}, {2, 2}, {1, 1}, {1, 2}] |> Offset.to_offsets() ==
+               Piece.rotate_right(o).offsets
     end
 
     test "rotates an S", %{some_color: some_color} do
       {:ok, s} = Piece.new(:s, 0, some_color)
-      assert [{3, 2}, {3, 3}, {2, 1}, {2, 2}] = Piece.rotate_right(s).points
+
+      assert [{3, 2}, {3, 3}, {2, 1}, {2, 2}] |> Offset.to_offsets() ==
+               Piece.rotate_right(s).offsets
     end
 
     test "rotates a T", %{some_color: some_color} do
       {:ok, t} = Piece.new(:t, 0, some_color)
-      assert [{3, 2}, {2, 2}, {1, 2}, {2, 3}] = Piece.rotate_right(t).points
+
+      assert [{3, 2}, {2, 2}, {1, 2}, {2, 3}] |> Offset.to_offsets() ==
+               Piece.rotate_right(t).offsets
     end
 
     test "rotates a Z", %{some_color: some_color} do
       {:ok, z} = Piece.new(:z, 0, some_color)
-      assert [{3, 1}, {3, 2}, {2, 2}, {2, 3}] = Piece.rotate_right(z).points
+
+      assert [{3, 1}, {3, 2}, {2, 2}, {2, 3}] |> Offset.to_offsets() ==
+               Piece.rotate_right(z).offsets
     end
   end
 
-  describe "#rotate_left/1" do
+  describe "rotate_left/1" do
     test "rotates an I", %{some_color: some_color} do
       {:ok, i} = Piece.new(:i, 0, some_color)
-      assert [{1, 3}, {2, 3}, {3, 3}, {4, 3}] = Piece.rotate_left(i).points
+
+      assert [{1, 3}, {2, 3}, {3, 3}, {4, 3}] |> Offset.to_offsets() ==
+               Piece.rotate_left(i).offsets
     end
 
     test "rotates an L", %{some_color: some_color} do
       {:ok, l} = Piece.new(:l, 0, some_color)
-      assert [{1, 2}, {2, 2}, {3, 2}, {3, 1}] = Piece.rotate_left(l).points
+
+      assert [{1, 2}, {2, 2}, {3, 2}, {3, 1}] |> Offset.to_offsets() ==
+               Piece.rotate_left(l).offsets
     end
 
     test "rotates a mirror L", %{some_color: some_color} do
       {:ok, ml} = Piece.new(:ml, 0, some_color)
-      assert [{1, 2}, {2, 2}, {3, 2}, {3, 3}] = Piece.rotate_left(ml).points
+
+      assert [{1, 2}, {2, 2}, {3, 2}, {3, 3}] |> Offset.to_offsets() ==
+               Piece.rotate_left(ml).offsets
     end
 
     test "rotates an O", %{some_color: some_color} do
       {:ok, o} = Piece.new(:o, 0, some_color)
-      assert [{1, 2}, {1, 1}, {2, 2}, {2, 1}] = Piece.rotate_left(o).points
+
+      assert [{1, 2}, {1, 1}, {2, 2}, {2, 1}] |> Offset.to_offsets() ==
+               Piece.rotate_left(o).offsets
     end
 
     test "rotates an S", %{some_color: some_color} do
       {:ok, s} = Piece.new(:s, 0, some_color)
-      assert [{1, 2}, {1, 1}, {2, 3}, {2, 2}] = Piece.rotate_left(s).points
+
+      assert [{1, 2}, {1, 1}, {2, 3}, {2, 2}] |> Offset.to_offsets() ==
+               Piece.rotate_left(s).offsets
     end
 
     test "rotates a T", %{some_color: some_color} do
       {:ok, t} = Piece.new(:t, 0, some_color)
-      assert [{1, 2}, {2, 2}, {3, 2}, {2, 1}] = Piece.rotate_left(t).points
+
+      assert [{1, 2}, {2, 2}, {3, 2}, {2, 1}] |> Offset.to_offsets() ==
+               Piece.rotate_left(t).offsets
     end
 
     test "rotates a Z", %{some_color: some_color} do
       {:ok, z} = Piece.new(:z, 0, some_color)
-      assert [{1, 3}, {1, 2}, {2, 2}, {2, 1}] = Piece.rotate_left(z).points
+
+      assert [{1, 3}, {1, 2}, {2, 2}, {2, 1}] |> Offset.to_offsets() ==
+               Piece.rotate_left(z).offsets
     end
   end
 
@@ -214,7 +243,7 @@ defmodule Notris.PieceTest do
       forall piece <- G.piece() do
         %Piece{} = rotated_piece = rotate_n(piece, &Piece.rotate_right/1, 4)
 
-        rotated_piece.points == piece.points
+        rotated_piece.offsets == piece.offsets
       end
     end
 
@@ -222,7 +251,7 @@ defmodule Notris.PieceTest do
       forall piece <- G.piece() do
         %Piece{} = rotated_piece = rotate_n(piece, &Piece.rotate_left/1, 4)
 
-        rotated_piece.points == piece.points
+        rotated_piece.offsets == piece.offsets
       end
     end
 
@@ -231,12 +260,12 @@ defmodule Notris.PieceTest do
         %Piece{} = right_rotated_piece = rotate_n(piece, &Piece.rotate_right/1, n)
         %Piece{} = left_rotated_piece = rotate_n(piece, &Piece.rotate_left/1, 4 - n)
 
-        right_rotated_piece.points == left_rotated_piece.points
+        right_rotated_piece.offsets == left_rotated_piece.offsets
       end
     end
   end
 
-  describe "#to_glyph" do
+  describe "to_glyph" do
     test "I", %{some_color: some_color} do
       {:ok, piece} = Piece.new(:i, 0, some_color)
 

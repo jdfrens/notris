@@ -3,25 +3,25 @@ defmodule Notris.Piece do
   A `Notris.Piece` is the thing that falls that the user gets to control.
   """
 
-  alias Notris.{Board, Color, Point, Rotation, Shape}
+  alias Notris.{Board, Color, Location, Offset, Rotation, Shape}
 
-  @enforce_keys ~w(shape points color)a
-  defstruct ~w(shape points color)a
+  @enforce_keys ~w(shape offsets color)a
+  defstruct ~w(shape offsets color)a
 
   @type t :: %__MODULE__{
           shape: Shape.t(),
-          points: list(Point.piece_point()),
+          offsets: list(Offset.t()),
           color: Color.t()
         }
 
-  @point_grids %{
-    i: [{2, 1}, {2, 2}, {2, 3}, {2, 4}],
-    l: [{2, 1}, {2, 2}, {2, 3}, {3, 3}],
-    ml: [{2, 1}, {2, 2}, {2, 3}, {1, 3}],
-    o: [{1, 1}, {2, 1}, {1, 2}, {2, 2}],
-    s: [{2, 1}, {3, 1}, {1, 2}, {2, 2}],
-    t: [{2, 1}, {2, 2}, {2, 3}, {3, 2}],
-    z: [{1, 1}, {2, 1}, {2, 2}, {3, 2}]
+  @shape_offsets %{
+    i: [{2, 1}, {2, 2}, {2, 3}, {2, 4}] |> Offset.to_offsets(),
+    l: [{2, 1}, {2, 2}, {2, 3}, {3, 3}] |> Offset.to_offsets(),
+    ml: [{2, 1}, {2, 2}, {2, 3}, {1, 3}] |> Offset.to_offsets(),
+    o: [{1, 1}, {2, 1}, {1, 2}, {2, 2}] |> Offset.to_offsets(),
+    s: [{2, 1}, {3, 1}, {1, 2}, {2, 2}] |> Offset.to_offsets(),
+    t: [{2, 1}, {2, 2}, {2, 3}, {3, 2}] |> Offset.to_offsets(),
+    z: [{1, 1}, {2, 1}, {2, 2}, {3, 2}] |> Offset.to_offsets()
   }
 
   @spec new(Shape.t(), Rotation.t(), Color.t()) :: {:ok, t()}
@@ -29,13 +29,13 @@ defmodule Notris.Piece do
     with :ok <- Shape.valid?(shape),
          :ok <- Rotation.valid?(rotation),
          :ok <- Color.valid?(color) do
-      points =
-        points_for(shape)
-        |> rotate_new_points(shape, rotation)
+      offsets =
+        offsets_for(shape)
+        |> rotate_new_offsets(shape, rotation)
 
       piece = %__MODULE__{
         shape: shape,
-        points: points,
+        offsets: offsets,
         color: color
       }
 
@@ -43,35 +43,36 @@ defmodule Notris.Piece do
     end
   end
 
-  @spec board_points_at(t(), Point.location()) :: Board.board_points()
-  def board_points_at(piece, location) do
+  @spec to_bottom(t(), Location.t()) :: Board.bottom()
+  def to_bottom(piece, %Location{} = location) do
     piece
-    |> points_at(location)
+    |> locations_at(location)
     |> Enum.into(%{}, &{&1, piece.color})
   end
 
-  @spec points_at(t(), Point.location()) :: list(Point.location())
-  def points_at(piece, {l_col, l_row}) do
-    Enum.map(piece.points, fn {col, row} -> {col + l_col, row + l_row} end)
+  @spec locations_at(t(), Location.t()) :: list(Location.t())
+  def locations_at(piece, %Location{} = location) do
+    Enum.map(piece.offsets, &Location.offset(location, &1))
   end
 
   @spec rotate_right(t()) :: t()
   def rotate_right(piece) do
-    rotated_points = Enum.map(piece.points, &rotate_point_right(piece.shape, &1))
-    %{piece | points: rotated_points}
+    rotated_offsets = Enum.map(piece.offsets, &rotate_offset_right(piece.shape, &1))
+    %{piece | offsets: rotated_offsets}
   end
 
   @spec rotate_left(t()) :: t()
   def rotate_left(piece) do
-    rotated_points = Enum.map(piece.points, &rotate_point_left(piece.shape, &1))
-    %{piece | points: rotated_points}
+    rotated_offsets = Enum.map(piece.offsets, &rotate_offset_left(piece.shape, &1))
+    %{piece | offsets: rotated_offsets}
   end
 
   @spec to_glyph(t()) :: String.t()
   def to_glyph(piece) do
     for row <- 1..4 do
       for col <- 1..4 do
-        if {col, row} in piece.points, do: "X", else: "_"
+        offset = Offset.new(col, row)
+        if offset in piece.offsets, do: "X", else: "_"
       end
       |> Enum.join()
       |> Kernel.<>("\n")
@@ -79,24 +80,24 @@ defmodule Notris.Piece do
     |> Enum.join()
   end
 
-  defp points_for(shape) do
-    @point_grids[shape]
+  defp offsets_for(shape) do
+    @shape_offsets[shape]
   end
 
-  defp rotate_new_points(points, shape, rotate) do
-    points
-    |> Stream.iterate(fn points -> Enum.map(points, &rotate_point_right(shape, &1)) end)
+  defp rotate_new_offsets(offsets, shape, rotate) do
+    offsets
+    |> Stream.iterate(fn os -> Enum.map(os, &rotate_offset_right(shape, &1)) end)
     |> Stream.drop(rotate)
     |> Enum.take(1)
     |> List.first()
   end
 
-  defp rotate_point_right(shape, {col, row}) do
-    {grid_size(shape) + 1 - row, col}
+  defp rotate_offset_right(shape, %Offset{} = offset) do
+    Offset.new(grid_size(shape) + 1 - offset.row, offset.col)
   end
 
-  defp rotate_point_left(shape, {col, row}) do
-    {row, grid_size(shape) + 1 - col}
+  defp rotate_offset_left(shape, %Offset{} = offset) do
+    Offset.new(offset.row, grid_size(shape) + 1 - offset.col)
   end
 
   defp grid_size(:i), do: 4
