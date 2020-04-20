@@ -3,7 +3,7 @@ defmodule Notris.Piece do
   A `Notris.Piece` is the thing that falls that the user gets to control.
   """
 
-  alias Notris.{Board, Color, Location, Offset, Rotation, Shape}
+  alias Notris.{Bottom, Color, Location, Offset, Rotation, Shape}
 
   @enforce_keys ~w(shape offsets color)a
   defstruct ~w(shape offsets color)a
@@ -43,7 +43,7 @@ defmodule Notris.Piece do
     end
   end
 
-  @spec to_bottom(t(), Location.t()) :: Board.bottom()
+  @spec to_bottom(t(), Location.t()) :: Bottom.t()
   def to_bottom(piece, %Location{} = location) do
     piece
     |> locations_at(location)

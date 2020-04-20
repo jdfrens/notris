@@ -2,7 +2,7 @@ defmodule Notris.BoardTest do
   use ExUnit.Case, async: true
   use PropCheck
 
-  alias Notris.{Board, Location, Piece}
+  alias Notris.{Board, Bottom, Location, Piece}
   alias Notris.PropertyTestGenerators, as: G
 
   describe "add/2" do
@@ -77,7 +77,7 @@ defmodule Notris.BoardTest do
 
     property "collides with dropped pieces" do
       forall board <- G.board() do
-        Enum.all?(Map.keys(board.bottom), fn p -> Board.collides?(board, p) end)
+        Enum.all?(Bottom.locations_of(board.bottom), fn p -> Board.collides?(board, p) end)
       end
     end
 
@@ -85,7 +85,7 @@ defmodule Notris.BoardTest do
       forall board <- G.board() do
         unoccupied_location =
           such_that location <- G.location(board.width, board.height),
-                    when: location not in Map.keys(board.bottom)
+                    when: location not in Bottom.locations_of(board.bottom)
 
         forall location <- unoccupied_location do
           not Board.collides?(board, location)

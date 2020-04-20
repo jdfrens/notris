@@ -3,25 +3,24 @@ defmodule Notris.Board do
   Model for the board of a game.
   """
 
-  alias Notris.{Board, Color, Location, Piece}
+  alias Notris.{Board, Bottom, Location, Piece}
 
   @enforce_keys ~w(width height bottom)a
   defstruct width: 0, height: 0, bottom: %{}
 
   @type width :: pos_integer()
   @type height :: pos_integer()
-  @type bottom :: %{Location.t() => Color.t()}
 
   @type t :: %__MODULE__{
           width: pos_integer(),
           height: pos_integer(),
-          bottom: bottom()
+          bottom: Bottom.t()
         }
 
   @doc """
   Creates a new board with minimal validations on its parameters.
   """
-  @spec new({width(), height()}, bottom()) ::
+  @spec new({width(), height()}, Bottom.t()) ::
           {:ok, t()}
           | {:error, {:invalid_width, any()}}
           | {:error, {:invalid_height, any()}}
@@ -39,8 +38,7 @@ defmodule Notris.Board do
   """
   @spec add_to_bottom(t(), Piece.t(), Location.t()) :: t()
   def add_to_bottom(%Board{} = board, %Piece{} = piece, %Location{} = location) do
-    piece_as_bottom = Piece.to_bottom(piece, location)
-    new_bottom = Map.merge(board.bottom, piece_as_bottom)
+    new_bottom = Bottom.add_piece(board.bottom, piece, location)
     %{board | bottom: new_bottom}
   end
 
@@ -49,7 +47,7 @@ defmodule Notris.Board do
   """
   @spec collides?(t(), Location.t()) :: boolean()
   def collides?(%Board{} = board, %Location{} = location) do
-    collides_border?(board, location) or location in Map.keys(board.bottom)
+    collides_border?(board, location) or location in Bottom.locations_of(board.bottom)
   end
 
   defp collides_border?(board, %Location{} = location) do
