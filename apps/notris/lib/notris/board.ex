@@ -51,7 +51,7 @@ defmodule Notris.Board do
   end
 
   defp collides_border?(board, %Location{} = location) do
-    location.col not in 1..board.width or location.row not in 1..board.height
+    location.col not in 1..board.width or location.row > board.height
   end
 
   defp valid_width(width) when is_integer(width) and width > 0, do: :ok

@@ -59,10 +59,10 @@ defmodule Notris.BoardTest do
       end
     end
 
-    property "collides off the top of the grid" do
+    property "does NOT collide off the top of the grid" do
       forall board <- G.empty_board() do
-        forall {col, row_offset} <- {G.col_in(board), pos_integer()} do
-          Board.collides?(board, Location.new(col, 1 - row_offset))
+        forall {col, row} <- {G.col_in(board), neg_integer()} do
+          not Board.collides?(board, Location.new(col, row))
         end
       end
     end
