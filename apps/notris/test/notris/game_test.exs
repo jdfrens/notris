@@ -1,6 +1,6 @@
 defmodule Notris.GameTest do
   use ExUnit.Case, async: true
-  use PropCheck
+  use ExUnitProperties
 
   alias Notris.{Board, Game, Location, Piece}
   alias Notris.PropertyTestGenerators, as: G
@@ -13,7 +13,7 @@ defmodule Notris.GameTest do
       {:ok, board} = Board.new({10, 10})
       {:ok, piece} = Piece.new(:o, 0, :red)
 
-      forall location <- G.location_for(piece, board.width, board.height) do
+      check all location <- G.location_for(piece, board.width, board.height) do
         original_game = board |> Game.new() |> Game.add(piece, location)
 
         games =
@@ -28,10 +28,10 @@ defmodule Notris.GameTest do
 
         last_location = Location.new(0, location.row)
 
-        (Enum.map(moved, fn g -> g.location.col end) == Enum.to_list(location.col..0))
-        |> Kernel.and(last_moved.location == last_location)
-        |> Kernel.and(first_unmoved.location == last_location)
-        |> Kernel.and(Enum.all?(moved, fn g -> not g.game_over end))
+        assert Enum.map(moved, fn g -> g.location.col end) == Enum.to_list(location.col..0)
+        assert last_moved.location == last_location
+        assert first_unmoved.location == last_location
+        assert Enum.all?(moved, fn g -> not g.game_over end)
       end
     end
   end
@@ -41,7 +41,7 @@ defmodule Notris.GameTest do
       {:ok, board} = Board.new({10, 10})
       {:ok, piece} = Piece.new(:o, 0, :red)
 
-      forall location <- G.location_for(piece, board.width, board.height) do
+      check all location <- G.location_for(piece, board.width, board.height) do
         original_game = board |> Game.new() |> Game.add(piece, location)
 
         games =
@@ -56,11 +56,12 @@ defmodule Notris.GameTest do
 
         last_location = Location.new(board.width - @width_of_o, location.row)
 
-        (Enum.map(moved, fn g -> g.location.col end) ==
-           Enum.to_list(location.col..(board.width - 2)))
-        |> Kernel.and(last_moved.location == last_location)
-        |> Kernel.and(first_unmoved.location == last_location)
-        |> Kernel.and(Enum.all?(moved, fn g -> not g.game_over end))
+        assert Enum.map(moved, fn g -> g.location.col end) ==
+                 Enum.to_list(location.col..(board.width - 2))
+
+        assert last_moved.location == last_location
+        assert first_unmoved.location == last_location
+        assert Enum.all?(moved, fn g -> not g.game_over end)
       end
     end
   end
@@ -73,7 +74,7 @@ defmodule Notris.GameTest do
 
       {:ok, piece} = Piece.new(:o, 0, :red)
 
-      forall col <- choose(1, 10 - @width_of_o) do
+      check all col <- integer(1..(10 - @width_of_o)) do
         # start off the board
         location = Location.new(col, -2)
         original_game = board |> Game.new() |> Game.add(piece, location)
@@ -87,19 +88,21 @@ defmodule Notris.GameTest do
           games
           |> Enum.take(10)
 
-        Enum.map(interesting_steps, & &1.location) ==
-          [
-            Location.new(col, -2),
-            Location.new(col, -1),
-            Location.new(col, 0),
-            Location.new(col, 1),
-            Location.new(col, 2),
-            Location.new(col, 3),
-            Location.new(col, 4),
-            Location.new(col, 5),
-            Location.new(col, 6),
-            nil
-          ] and Enum.all?(interesting_steps, fn g -> not g.game_over end)
+        assert Enum.map(interesting_steps, & &1.location) ==
+                 [
+                   Location.new(col, -2),
+                   Location.new(col, -1),
+                   Location.new(col, 0),
+                   Location.new(col, 1),
+                   Location.new(col, 2),
+                   Location.new(col, 3),
+                   Location.new(col, 4),
+                   Location.new(col, 5),
+                   Location.new(col, 6),
+                   nil
+                 ]
+
+        assert Enum.all?(interesting_steps, fn g -> not g.game_over end)
       end
     end
 
@@ -110,15 +113,17 @@ defmodule Notris.GameTest do
 
       {:ok, piece} = Piece.new(:o, 0, :red)
 
-      forall col <- choose(1, 10 - @width_of_o) do
+      check all col <- integer(1..(10 - @width_of_o)) do
         # start off the board
         location = Location.new(col, -2)
 
-        original_game = board |> Game.new() |> Game.add(piece, location)
-        one_down_game = Game.maybe_move_down(original_game)
-        over_game = Game.maybe_move_down(one_down_game)
+        game0 = board |> Game.new() |> Game.add(piece, location)
+        game1 = Game.maybe_move_down(game0)
+        game2 = Game.maybe_move_down(game1)
 
-        not original_game.game_over and not one_down_game.game_over and over_game.game_over
+        refute game0.game_over
+        refute game1.game_over
+        assert game2.game_over
       end
     end
   end

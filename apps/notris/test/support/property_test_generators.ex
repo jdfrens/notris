@@ -3,39 +3,38 @@ defmodule Notris.PropertyTestGenerators do
   Generators from property tests.
   """
 
-  use PropCheck
+  import StreamData
 
-  alias Notris.{Board, Color, Location, Piece, Rotation, Shape}
-
-  @type pc_type :: PropCheck.BasicTypes.type()
+  alias Notris.{Board, Bottom, Color, Location, Piece, Rotation, Shape}
 
   # important limits when placing and moving an O shape
   @width_of_o 2
   @height_of_o 2
 
-  @spec empty_board :: pc_type()
+  @spec empty_board :: StreamData.t(Board.t())
   def empty_board do
-    let {width, height} <- {pos_integer(), pos_integer()} do
-      {:ok, board} = Board.new({width + 5, height + 10})
-      board
-    end
+    bind(positive_integer(), fn width ->
+      bind(positive_integer(), fn height ->
+        {:ok, board} = Board.new({width + 5, height + 10})
+        constant(board)
+      end)
+    end)
   end
 
-  @spec board :: pc_type()
+  @spec board :: StreamData.t(Board.t())
   def board do
-    let {width, height} <- {pos_integer(), pos_integer()} do
-      let bottom <- bottom(width, height) do
+    tuple({integer(10..100), integer(10..100)})
+    |> bind(fn {width, height} ->
+      bind(bottom(width, height), fn bottom ->
         {:ok, board} = Board.new({width + 5, height + 5}, bottom)
-        board
-      end
-    end
+        constant(board)
+      end)
+    end)
   end
 
-  @spec bottom(pos_integer(), pos_integer()) :: pc_type()
+  @spec bottom(pos_integer(), pos_integer()) :: StreamData.t(Bottom.t())
   def bottom(width, height) do
-    let locations_and_colors <- list({location(width, height), color()}) do
-      Enum.into(locations_and_colors, %{})
-    end
+    map_of(location(width, height), color())
   end
 
   @spec fill_bottom(Board.t(), non_neg_integer()) :: Board.t()
@@ -50,89 +49,78 @@ defmodule Notris.PropertyTestGenerators do
     %{board | bottom: bottom}
   end
 
-  @spec col_in(Board.t()) :: pc_type()
+  @spec col_in(Board.t()) :: StreamData.t(integer())
   def col_in(%Board{width: width} = _board) do
-    choose(1, width)
+    integer(1..width)
   end
 
-  @spec row_in(Board.t()) :: pc_type()
+  @spec row_in(Board.t()) :: StreamData.t(integer())
   def row_in(%Board{height: height} = _board) do
-    choose(1, height)
+    integer(1..height)
   end
 
   @doc """
   Generates a valid color.
   """
-  @spec color :: pc_type()
+  @spec color :: StreamData.t(Color.t())
   def color do
-    oneof(Color.values())
+    member_of(Color.values())
   end
 
   @doc """
   Generates a location.
   """
-  @spec location :: pc_type()
+  @spec location :: StreamData.t(Location.t())
   def location do
-    let {col, row} <- {pos_integer(), pos_integer()} do
-      Location.new(col, row)
-    end
+    tuple({positive_integer(), positive_integer()})
+    |> bind(fn {col, row} -> constant(Location.new(col, row)) end)
   end
 
   @doc """
   Generates a valid location on a board.
   """
-  @spec location(pos_integer(), pos_integer()) :: pc_type()
+  @spec location(pos_integer(), pos_integer()) :: StreamData.t(Location.t())
   def location(width, height) do
-    let {col, row} <- {choose(1, width), choose(1, height)} do
-      Location.new(col, row)
-    end
+    tuple({integer(1..width), integer(1..height)})
+    |> bind(fn {col, row} -> constant(Location.new(col, row)) end)
   end
 
   @doc """
   Generates a valid location for a particular shape.
   """
-  @spec location_for(Piece.t(), pos_integer(), pos_integer()) :: pc_type()
+  @spec location_for(Piece.t(), pos_integer(), pos_integer()) :: StreamData.t(Location.t())
   def location_for(%Piece{shape: :o}, width, height) do
     last_col = width - @width_of_o
     last_row = height - @height_of_o
 
-    let {col, row} <- {choose(1, last_col), choose(1, last_row)} do
-      Location.new(col, row)
-    end
-  end
-
-  @doc """
-  Generates valid locations on a board.
-  """
-  @spec locations(pos_integer(), pos_integer()) :: pc_type()
-  def locations(width, height) do
-    list(location(width, height))
+    tuple({integer(1..last_col), integer(1..last_row)})
+    |> bind(fn {col, row} -> constant(Location.new(col, row)) end)
   end
 
   @doc """
   Generates 0, 1, 2, or 3, the number of right rotations to apply.
   """
-  @spec rotation :: pc_type()
+  @spec rotation :: StreamData.t(Rotation.t())
   def rotation do
-    oneof(Rotation.values())
+    member_of(Rotation.values())
   end
 
   @doc """
   Generates a valid shape atom.
   """
-  @spec shape :: pc_type()
+  @spec shape :: StreamData.t(Shape.t())
   def shape do
-    oneof(Shape.values())
+    member_of(Shape.values())
   end
 
   @doc """
   Generates a `Notris.Piece.t()`.
   """
-  @spec piece :: pc_type()
+  @spec piece :: StreamData.t(Piece.t())
   def piece do
-    let {shape, rotate, color} <- {shape(), rotation(), color()} do
+    bind(tuple({shape(), rotation(), color()}), fn {shape, rotate, color} ->
       {:ok, piece} = Piece.new(shape, rotate, color)
-      piece
-    end
+      constant(piece)
+    end)
   end
 end

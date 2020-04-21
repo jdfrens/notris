@@ -30,7 +30,7 @@ defmodule Notris.MixProject do
 
   defp deps do
     [
-      {:propcheck, "~> 1.1", only: [:test, :dev]}
+      {:stream_data, "~> 0.1", only: [:dev, :test]}
     ]
   end
 
