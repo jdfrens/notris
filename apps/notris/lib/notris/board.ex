@@ -3,57 +3,55 @@ defmodule Notris.Board do
   Model for the board of a game.
   """
 
-  alias Notris.{Board, Color, Piece, Point}
+  alias Notris.{Board, Bottom, Location, Piece}
 
-  @enforce_keys ~w(width height points)a
-  defstruct width: 0, height: 0, points: %{}
+  @enforce_keys ~w(width height bottom)a
+  defstruct width: 0, height: 0, bottom: %{}
 
   @type width :: pos_integer()
   @type height :: pos_integer()
-  @type board_points :: %{Point.location() => Color.t()}
 
   @type t :: %__MODULE__{
           width: pos_integer(),
           height: pos_integer(),
-          points: board_points()
+          bottom: Bottom.t()
         }
 
   @doc """
   Creates a new board with minimal validations on its parameters.
   """
-  @spec new({width(), height()}, board_points()) ::
+  @spec new({width(), height()}, Bottom.t()) ::
           {:ok, t()}
           | {:error, {:invalid_width, any()}}
           | {:error, {:invalid_height, any()}}
-          | {:error, {:invalid_board_points, any()}}
-  def new({width, height}, board_points \\ %{}) do
+          | {:error, {:invalid_bottom, any()}}
+  def new({width, height}, bottom \\ %{}) do
     with :ok <- valid_width(width),
          :ok <- valid_height(height),
-         :ok <- valid_board_points(board_points) do
-      %Board{width: width, height: height, points: board_points}
+         :ok <- valid_bottom(bottom) do
+      {:ok, %Board{width: width, height: height, bottom: bottom}}
     end
   end
 
   @doc """
-  Adds a `piece` to the `board` at a `location`.
+  Adds a `piece` to the bottom of the `board` at a `location`.
   """
-  @spec add(t(), Point.location(), Piece.t()) :: t()
-  def add(board, location, piece) do
-    piece_locations = Piece.board_points_at(piece, location)
-    new_points = Map.merge(board.points, piece_locations)
-    %{board | points: new_points}
+  @spec add_to_bottom(t(), Piece.t(), Location.t()) :: t()
+  def add_to_bottom(%Board{} = board, %Piece{} = piece, %Location{} = location) do
+    new_bottom = Bottom.add_piece(board.bottom, piece, location)
+    %{board | bottom: new_bottom}
   end
 
   @doc """
-  Checks if the `point` collides with the boarder or a fallen point on the `board`.
+  Checks if the `location` collides with the border or the bottom of the `board`.
   """
-  @spec collides?(t(), Point.location()) :: boolean()
-  def collides?(board, point) do
-    collides_boarder?(board, point) or point in board.points
+  @spec collides?(t(), Location.t()) :: boolean()
+  def collides?(%Board{} = board, %Location{} = location) do
+    collides_border?(board, location) or location in Bottom.locations_of(board.bottom)
   end
 
-  defp collides_boarder?(board, {col, row}) do
-    col not in 1..board.width or row not in 1..board.height
+  defp collides_border?(board, %Location{} = location) do
+    location.col not in 1..board.width or location.row > board.height
   end
 
   defp valid_width(width) when is_integer(width) and width > 0, do: :ok
@@ -62,6 +60,6 @@ defmodule Notris.Board do
   defp valid_height(height) when is_integer(height) and height > 0, do: :ok
   defp valid_height(height), do: {:error, {:invalid_height, height}}
 
-  defp valid_board_points(board_points) when is_map(board_points), do: :ok
-  defp valid_board_points(board_points), do: {:error, {:invalid_board_points, board_points}}
+  defp valid_bottom(bottom) when is_map(bottom), do: :ok
+  defp valid_bottom(bottom), do: {:error, {:invalid_bottom, bottom}}
 end

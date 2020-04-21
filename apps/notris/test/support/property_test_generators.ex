@@ -5,37 +5,57 @@ defmodule Notris.PropertyTestGenerators do
 
   use PropCheck
 
-  alias Notris.{Board, Color, Piece, Rotation, Shape}
+  alias Notris.{Board, Color, Location, Piece, Rotation, Shape}
 
-  @spec empty_board :: PropCheck.BasicTypes.type()
+  @type pc_type :: PropCheck.BasicTypes.type()
+
+  # important limits when placing and moving an O shape
+  @width_of_o 2
+  @height_of_o 2
+
+  @spec empty_board :: pc_type()
   def empty_board do
     let {width, height} <- {pos_integer(), pos_integer()} do
-      Board.new({width + 5, height + 10})
+      {:ok, board} = Board.new({width + 5, height + 10})
+      board
     end
   end
 
-  @spec board :: PropCheck.BasicTypes.type()
+  @spec board :: pc_type()
   def board do
     let {width, height} <- {pos_integer(), pos_integer()} do
-      let board_points <- board_points(width, height) do
-        Board.new({width + 5, height + 5}, board_points)
+      let bottom <- bottom(width, height) do
+        {:ok, board} = Board.new({width + 5, height + 5}, bottom)
+        board
       end
     end
   end
 
-  @spec board_points(pos_integer(), pos_integer()) :: PropCheck.BasicTypes.type()
-  def board_points(width, height) do
+  @spec bottom(pos_integer(), pos_integer()) :: pc_type()
+  def bottom(width, height) do
     let locations_and_colors <- list({location(width, height), color()}) do
       Enum.into(locations_and_colors, %{})
     end
   end
 
-  @spec col_in(Board.t()) :: PropCheck.BasicTypes.type()
+  @spec fill_bottom(Board.t(), non_neg_integer()) :: Board.t()
+  def fill_bottom(board, num_rows) do
+    %Board{width: width, height: height} = board
+
+    bottom =
+      for col <- 1..width, row <- (height - num_rows + 1)..height, into: %{} do
+        {Location.new(col, row), Enum.random(Color.values())}
+      end
+
+    %{board | bottom: bottom}
+  end
+
+  @spec col_in(Board.t()) :: pc_type()
   def col_in(%Board{width: width} = _board) do
     choose(1, width)
   end
 
-  @spec row_in(Board.t()) :: PropCheck.BasicTypes.type()
+  @spec row_in(Board.t()) :: pc_type()
   def row_in(%Board{height: height} = _board) do
     choose(1, height)
   end
@@ -43,7 +63,7 @@ defmodule Notris.PropertyTestGenerators do
   @doc """
   Generates a valid color.
   """
-  @spec color :: PropCheck.BasicTypes.type()
+  @spec color :: pc_type()
   def color do
     oneof(Color.values())
   end
@@ -51,27 +71,40 @@ defmodule Notris.PropertyTestGenerators do
   @doc """
   Generates a location.
   """
-  @spec location :: PropCheck.BasicTypes.type()
+  @spec location :: pc_type()
   def location do
     let {col, row} <- {pos_integer(), pos_integer()} do
-      {col, row}
+      Location.new(col, row)
     end
   end
 
   @doc """
   Generates a valid location on a board.
   """
-  @spec location(pos_integer(), pos_integer()) :: PropCheck.BasicTypes.type()
+  @spec location(pos_integer(), pos_integer()) :: pc_type()
   def location(width, height) do
     let {col, row} <- {choose(1, width), choose(1, height)} do
-      {col, row}
+      Location.new(col, row)
+    end
+  end
+
+  @doc """
+  Generates a valid location for a particular shape.
+  """
+  @spec location_for(Piece.t(), pos_integer(), pos_integer()) :: pc_type()
+  def location_for(%Piece{shape: :o}, width, height) do
+    last_col = width - @width_of_o
+    last_row = height - @height_of_o
+
+    let {col, row} <- {choose(1, last_col), choose(1, last_row)} do
+      Location.new(col, row)
     end
   end
 
   @doc """
   Generates valid locations on a board.
   """
-  @spec locations(pos_integer(), pos_integer()) :: PropCheck.BasicTypes.type()
+  @spec locations(pos_integer(), pos_integer()) :: pc_type()
   def locations(width, height) do
     list(location(width, height))
   end
@@ -79,7 +112,7 @@ defmodule Notris.PropertyTestGenerators do
   @doc """
   Generates 0, 1, 2, or 3, the number of right rotations to apply.
   """
-  @spec rotation :: PropCheck.BasicTypes.type()
+  @spec rotation :: pc_type()
   def rotation do
     oneof(Rotation.values())
   end
@@ -87,7 +120,7 @@ defmodule Notris.PropertyTestGenerators do
   @doc """
   Generates a valid shape atom.
   """
-  @spec shape :: PropCheck.BasicTypes.type()
+  @spec shape :: pc_type()
   def shape do
     oneof(Shape.values())
   end
@@ -95,7 +128,7 @@ defmodule Notris.PropertyTestGenerators do
   @doc """
   Generates a `Notris.Piece.t()`.
   """
-  @spec piece :: PropCheck.BasicTypes.type()
+  @spec piece :: pc_type()
   def piece do
     let {shape, rotate, color} <- {shape(), rotation(), color()} do
       {:ok, piece} = Piece.new(shape, rotate, color)
