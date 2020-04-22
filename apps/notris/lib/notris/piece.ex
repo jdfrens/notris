@@ -14,6 +14,8 @@ defmodule Notris.Piece do
           color: Color.t()
         }
 
+  @type new_errors :: {:bad_shape, any()} | {:bad_rotation, any()} | {:bad_color, any()}
+
   @shape_offsets %{
     i: [{2, 1}, {2, 2}, {2, 3}, {2, 4}] |> Offset.to_offsets(),
     l: [{2, 1}, {2, 2}, {2, 3}, {3, 3}] |> Offset.to_offsets(),
@@ -24,7 +26,7 @@ defmodule Notris.Piece do
     z: [{1, 1}, {2, 1}, {2, 2}, {3, 2}] |> Offset.to_offsets()
   }
 
-  @spec new(Shape.t(), Rotation.t(), Color.t()) :: {:ok, t()}
+  @spec new(Shape.t(), Rotation.t(), Color.t()) :: {:ok, t()} | {:error, new_errors()}
   def new(shape, rotation, color) do
     with :ok <- Shape.valid?(shape),
          :ok <- Rotation.valid?(rotation),
