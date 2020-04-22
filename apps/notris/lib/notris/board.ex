@@ -33,6 +33,13 @@ defmodule Notris.Board do
     end
   end
 
+  @spec start_location(t()) :: Location.t()
+  def start_location(%Board{} = board) do
+    middle_col = div(board.width, 2)
+    off_board_row = -4
+    Location.new(middle_col, off_board_row)
+  end
+
   @doc """
   Adds a `piece` to the bottom of the `board` at a `location`.
   """
