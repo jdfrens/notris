@@ -1,6 +1,6 @@
 defmodule Notris.PieceTest do
   use ExUnit.Case, async: true
-  use PropCheck
+  use ExUnitProperties
 
   alias Notris.PropertyTestGenerators, as: G
 
@@ -14,34 +14,43 @@ defmodule Notris.PieceTest do
 
   describe "new/3 validations" do
     property "validates the shape" do
-      bad_shape = such_that s <- atom(), when: s not in Shape.values()
-
-      forall {shape, rotate, color} <- {bad_shape, G.rotation(), G.color()} do
-        match?({:error, {:bad_shape, ^shape}}, Piece.new(shape, rotate, color))
+      check all shape <- atom(:alphanumeric),
+                shape not in Shape.values(),
+                rotate <- G.rotation(),
+                color <- G.color() do
+        assert {:error, {:bad_shape, bad_shape}} = Piece.new(shape, rotate, color)
+        assert bad_shape == shape
       end
     end
 
     property "validates the color" do
-      bad_color = such_that c <- atom(), when: c not in Color.values()
-
-      forall {shape, rotate, color} <- {G.shape(), G.rotation(), bad_color} do
-        match?({:error, {:bad_color, ^color}}, Piece.new(shape, rotate, color))
+      check all shape <- G.shape(),
+                rotate <- G.rotation(),
+                color <- atom(:alphanumeric),
+                color not in Color.values() do
+        assert {:error, {:bad_color, bad_color}} = Piece.new(shape, rotate, color)
+        assert bad_color == color
       end
     end
 
     property "validates the rotation" do
-      bad_rotation = such_that r <- integer(), when: r not in Rotation.values()
-
-      forall {shape, rotation, color} <- {G.shape(), bad_rotation, G.color()} do
-        match?({:error, {:bad_rotation, ^rotation}}, Piece.new(shape, rotation, color))
+      check all shape <- G.shape(),
+                rotation <- integer(),
+                rotation not in Rotation.values(),
+                color <- G.color() do
+        assert {:error, {:bad_rotation, bad_rotation}} = Piece.new(shape, rotation, color)
+        assert bad_rotation == rotation
       end
     end
   end
 
   describe "new/3" do
     property "uses the color" do
-      forall {shape, rotation, color} <- {G.shape(), G.rotation(), G.color()} do
-        match?({:ok, %Piece{color: ^color}}, Piece.new(shape, rotation, color))
+      check all shape <- G.shape(),
+                rotation <- G.rotation(),
+                color <- G.color() do
+        assert {:ok, %Piece{color: used_color}} = Piece.new(shape, rotation, color)
+        assert used_color == color
       end
     end
 
@@ -109,7 +118,8 @@ defmodule Notris.PieceTest do
     end
 
     property "uses piece color for all locations on the bottom" do
-      forall {piece, location} <- {G.piece(), G.location()} do
+      check all piece <- G.piece(),
+                location <- G.location() do
         bottom = Piece.to_bottom(piece, location)
         bottom |> Map.values() |> Enum.uniq() == [piece.color]
       end
@@ -126,7 +136,8 @@ defmodule Notris.PieceTest do
     end
 
     property "offsets the shape within 4x4 grid" do
-      forall {piece, location} <- {G.piece(), G.location()} do
+      check all piece <- G.piece(),
+                location <- G.location() do
         piece_locations = Piece.locations_at(piece, location)
 
         Enum.all?(piece_locations, fn %Location{} = pl ->
@@ -240,7 +251,7 @@ defmodule Notris.PieceTest do
 
   describe "rotate_right/1 and rotate_left/1" do
     property "four right rotations gets back to the original" do
-      forall piece <- G.piece() do
+      check all piece <- G.piece() do
         %Piece{} = rotated_piece = rotate_n(piece, &Piece.rotate_right/1, 4)
 
         rotated_piece.offsets == piece.offsets
@@ -248,7 +259,7 @@ defmodule Notris.PieceTest do
     end
 
     property "four left rotations gets back to the original" do
-      forall piece <- G.piece() do
+      check all piece <- G.piece() do
         %Piece{} = rotated_piece = rotate_n(piece, &Piece.rotate_left/1, 4)
 
         rotated_piece.offsets == piece.offsets
@@ -256,7 +267,8 @@ defmodule Notris.PieceTest do
     end
 
     property "right n times is same as left 4 - n times" do
-      forall {n, piece} <- {choose(0, 4), G.piece()} do
+      check all n <- integer(0..4),
+                piece <- G.piece() do
         %Piece{} = right_rotated_piece = rotate_n(piece, &Piece.rotate_right/1, n)
         %Piece{} = left_rotated_piece = rotate_n(piece, &Piece.rotate_left/1, 4 - n)
 
