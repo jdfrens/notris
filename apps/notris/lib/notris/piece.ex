@@ -45,6 +45,15 @@ defmodule Notris.Piece do
     end
   end
 
+  @spec random :: t()
+  def(random) do
+    shape = Enum.random(Shape.values())
+    rotation = Enum.random(Rotation.values())
+    color = Color.color_of(shape)
+    {:ok, piece} = new(shape, rotation, color)
+    piece
+  end
+
   @spec to_bottom(t(), Location.t()) :: Bottom.t()
   def to_bottom(piece, %Location{} = location) do
     piece

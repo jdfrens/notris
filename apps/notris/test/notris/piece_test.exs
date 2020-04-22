@@ -104,6 +104,16 @@ defmodule Notris.PieceTest do
     end
   end
 
+  describe "random/0" do
+    property "returns a valid piece every time" do
+      check all _counter <- integer() do
+        assert %Piece{} = piece = Piece.random()
+        assert Shape.valid?(piece.shape)
+        assert Color.valid?(piece.color)
+      end
+    end
+  end
+
   describe "to_bottom/1" do
     # test one shape directly
     test "offsets an S", %{some_color: some_color} do
