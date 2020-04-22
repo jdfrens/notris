@@ -8,13 +8,40 @@ defmodule Notris.GameTest do
   # important limits when placing and moving an O shape
   @width_of_o 2
 
+  describe "new/0,3" do
+    property "set the board, piece, and location (without error checking)" do
+      {:ok, piece} = Piece.new(:o, 0, :red)
+
+      check all board <- G.board(),
+                location <- G.location_for(piece, board.width, board.height) do
+        assert Game.new(board, piece, location) == %Game{
+                 board: board,
+                 piece: piece,
+                 location: location,
+                 game_over: false
+               }
+      end
+    end
+
+    property "set the piece and location if not specified" do
+      check all board <- G.board() do
+        game = Game.new(board)
+
+        assert %Piece{} = game.piece
+        assert %Location{col: col, row: row} = game.location
+        assert col in 0..board.width
+        assert row < 0
+      end
+    end
+  end
+
   describe "maybe_move_left/1" do
     property "moves left until it hits the left border" do
       {:ok, board} = Board.new({10, 10})
       {:ok, piece} = Piece.new(:o, 0, :red)
 
       check all location <- G.location_for(piece, board.width, board.height) do
-        original_game = board |> Game.new() |> Game.add(piece, location)
+        original_game = Game.new(board, piece, location)
 
         games =
           Stream.iterate(original_game, fn game ->
@@ -42,7 +69,7 @@ defmodule Notris.GameTest do
       {:ok, piece} = Piece.new(:o, 0, :red)
 
       check all location <- G.location_for(piece, board.width, board.height) do
-        original_game = board |> Game.new() |> Game.add(piece, location)
+        original_game = Game.new(board, piece, location)
 
         games =
           Stream.iterate(original_game, fn game ->
@@ -77,18 +104,18 @@ defmodule Notris.GameTest do
       check all col <- integer(1..(10 - @width_of_o)) do
         # start off the board
         location = Location.new(col, -2)
-        original_game = board |> Game.new() |> Game.add(piece, location)
+        original_game = Game.new(board, piece, location)
 
         games =
           Stream.iterate(original_game, fn game ->
             Game.maybe_move_down(game)
           end)
 
-        interesting_steps =
+        interesting_games =
           games
           |> Enum.take(10)
 
-        assert Enum.map(interesting_steps, & &1.location) ==
+        assert Enum.map(interesting_games, & &1.location) ==
                  [
                    Location.new(col, -2),
                    Location.new(col, -1),
@@ -99,10 +126,14 @@ defmodule Notris.GameTest do
                    Location.new(col, 4),
                    Location.new(col, 5),
                    Location.new(col, 6),
-                   nil
+                   # new piece at top of board
+                   Location.new(5, -4)
                  ]
 
-        assert Enum.all?(interesting_steps, fn g -> not g.game_over end)
+        assert List.first(interesting_games).piece == piece
+        assert List.last(interesting_games).piece != piece
+
+        assert Enum.all?(interesting_games, fn g -> not g.game_over end)
       end
     end
 
@@ -117,7 +148,7 @@ defmodule Notris.GameTest do
         # start off the board
         location = Location.new(col, -2)
 
-        game0 = board |> Game.new() |> Game.add(piece, location)
+        game0 = Game.new(board, piece, location)
         game1 = Game.maybe_move_down(game0)
         game2 = Game.maybe_move_down(game1)
 
