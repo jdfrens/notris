@@ -61,10 +61,9 @@ defmodule Notris.Game do
   """
   @spec maybe_move_down(t()) :: t()
   def maybe_move_down(%Game{} = game) do
-    %Game{board: board, piece: piece, location: location} = game
-    maybe_location = Location.new(location.col, location.row + 1)
+    maybe_location = Location.offset(game.location, Offset.new(0, +1))
 
-    if collides?(board, piece, maybe_location) do
+    if collides?(game.board, game.piece, maybe_location) do
       process_piece_on_bottom(game)
     else
       %{game | location: maybe_location}
@@ -102,9 +101,12 @@ defmodule Notris.Game do
     if game_over?(game.piece, game.location) do
       %{game | game_over: true}
     else
-      game
-      |> Map.put(:piece, Piece.random())
-      |> Map.put(:location, Board.start_location(game.board))
+      next_board =
+        game.board
+        |> Board.add_to_bottom(game.piece, game.location)
+        |> Board.eliminate_full_rows()
+
+      Game.new(next_board, Piece.random(), Board.start_location(game.board))
     end
   end
 end

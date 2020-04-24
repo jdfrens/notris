@@ -57,6 +57,14 @@ defmodule Notris.Board do
     collides_border?(board, location) or location in Bottom.locations_of(board.bottom)
   end
 
+  @doc """
+  Eliminates full rows from the bottom.
+  """
+  @spec eliminate_full_rows(t()) :: t()
+  def eliminate_full_rows(%Board{} = board) do
+    %{board | bottom: Bottom.eliminate_full_rows(board.bottom, board.width, board.height)}
+  end
+
   defp collides_border?(board, %Location{} = location) do
     location.col not in 1..board.width or location.row > board.height
   end

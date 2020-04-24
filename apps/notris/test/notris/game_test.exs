@@ -137,6 +137,27 @@ defmodule Notris.GameTest do
       end
     end
 
+    test "eliminate full rows from bottom when piece hits the bottom" do
+      {:ok, empty_board} = Board.new({10, 10})
+      # fill two rows at the bottom
+      board = G.fill_bottom(empty_board, 2)
+      {:ok, piece} = Piece.new(:i, 0, :red)
+      location = Location.new(-1, -2)
+      original_game = Game.new(board, piece, location)
+
+      games =
+        Stream.iterate(original_game, fn game ->
+          Game.maybe_move_down(game)
+        end)
+
+      interesting_game = games |> Enum.take(10) |> List.last()
+
+      assert interesting_game.board.bottom == %{
+               Location.new(1, 9) => :red,
+               Location.new(1, 10) => :red
+             }
+    end
+
     property "game over if piece cannot drop and is above the top" do
       {:ok, empty_board} = Board.new({10, 3})
       # fill two rows at the bottom, leaving one empty
