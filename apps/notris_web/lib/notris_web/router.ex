@@ -17,5 +17,7 @@ defmodule NotrisWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    live "/notris", NotrisLive
   end
 end
