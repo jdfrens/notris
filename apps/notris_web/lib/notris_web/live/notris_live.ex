@@ -1,4 +1,8 @@
 defmodule NotrisWeb.NotrisLive do
+  @moduledoc """
+  LiveView to play the game of Notris.
+  """
+
   use Phoenix.LiveView
 
   def render(assigns) do
