@@ -31,10 +31,12 @@ defmodule NotrisWeb.MixProject do
 
   defp deps do
     [
+      {:floki, ">= 0.0.0", only: :test},
       {:phoenix, "~> 1.5.0"},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_html, "~> 2.11"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
+      {:phoenix_live_view, "~> 0.12.1"},
       {:notris, in_umbrella: true},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.2"}
