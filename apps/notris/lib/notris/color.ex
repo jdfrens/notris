@@ -3,9 +3,21 @@ defmodule Notris.Color do
   Definitions for colors of `Notris.Piece`s.
   """
 
-  @type t :: :red | :green | :blue | :yellow | :orange | :yellow | :pink
+  alias Notris.Shape
 
-  @values ~w(red green blue yellow orange yellow pink)a
+  @type t :: :red | :green | :blue | :yellow | :orange | :cyan | :pink
+
+  @shape_color_map %{
+    i: :red,
+    l: :green,
+    ml: :blue,
+    o: :yellow,
+    s: :orange,
+    t: :cyan,
+    z: :pink
+  }
+
+  @values Map.values(@shape_color_map)
 
   @spec values :: list(t())
   def values, do: @values
@@ -13,4 +25,9 @@ defmodule Notris.Color do
   @spec valid?(atom()) :: :ok | {:error, {:bad_color, t()}}
   def valid?(color) when color in @values, do: :ok
   def valid?(color), do: {:error, {:bad_color, color}}
+
+  @spec color_of(Shape.t()) :: t()
+  def color_of(shape) do
+    @shape_color_map[shape]
+  end
 end

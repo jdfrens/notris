@@ -34,6 +34,21 @@ defmodule Notris.BoardTest do
     end
   end
 
+  describe "#start_location" do
+    property "row always -4" do
+      check all board <- G.board() do
+        assert %Location{row: -4} = Board.start_location(board)
+      end
+    end
+
+    property "col always between 1 and width" do
+      check all board <- G.board() do
+        assert %Location{col: col} = Board.start_location(board)
+        assert col in 1..board.width
+      end
+    end
+  end
+
   describe "#collides?" do
     property "no collides inside boundaries" do
       check all board <- G.empty_board(),

@@ -16,21 +16,19 @@ defmodule Notris.Game do
         }
 
   @doc """
-  Creates a new game.
+  Creates a new game with just a `board`; a random piece at a starting position will be picked automatically.
   """
   @spec new(Board.t()) :: t()
   def new(%Board{} = board) do
-    %Game{piece: nil, location: nil, board: board, game_over: false}
+    Game.new(board, Piece.random(), Board.start_location(board))
   end
 
   @doc """
-  Adds a new current piece to the game.
-
-  There can be _no_ current piece when this function is called.
+  Creates a new game with a `board`, `piece`, and `location`.
   """
-  @spec add(t(), Piece.t(), Location.t()) :: t()
-  def add(%Game{piece: nil, location: nil} = game, %Piece{} = piece, %Location{} = location) do
-    %{game | piece: piece, location: location}
+  @spec new(Board.t(), Piece.t(), Location.t()) :: t()
+  def new(%Board{} = board, %Piece{} = piece, %Location{} = location) do
+    %Game{piece: piece, location: location, board: board, game_over: false}
   end
 
   @doc """
@@ -63,15 +61,10 @@ defmodule Notris.Game do
   """
   @spec maybe_move_down(t()) :: t()
   def maybe_move_down(%Game{} = game) do
-    %Game{board: board, piece: piece, location: location} = game
-    maybe_location = Location.new(location.col, location.row + 1)
+    maybe_location = Location.offset(game.location, Offset.new(0, +1))
 
-    if collides?(board, piece, maybe_location) do
-      if game_over?(piece, location) do
-        %{game | game_over: true}
-      else
-        %{game | piece: nil, location: nil}
-      end
+    if collides?(game.board, game.piece, maybe_location) do
+      process_piece_on_bottom(game)
     else
       %{game | location: maybe_location}
     end
@@ -79,10 +72,9 @@ defmodule Notris.Game do
 
   @spec maybe_move_horizontal(Game.t(), Offset.t()) :: Game.t()
   defp maybe_move_horizontal(%Game{} = game, %Offset{} = offset) do
-    %Game{board: board, piece: piece, location: location} = game
-    maybe_location = Location.offset(location, offset)
+    maybe_location = Location.offset(game.location, offset)
 
-    if collides?(board, piece, maybe_location) do
+    if collides?(game.board, game.piece, maybe_location) do
       game
     else
       %{game | location: maybe_location}
@@ -102,5 +94,19 @@ defmodule Notris.Game do
     |> Piece.locations_at(location)
     |> Enum.map(& &1.row)
     |> Enum.any?(&(&1 <= 0))
+  end
+
+  @spec process_piece_on_bottom(t()) :: t()
+  defp process_piece_on_bottom(%Game{} = game) do
+    if game_over?(game.piece, game.location) do
+      %{game | game_over: true}
+    else
+      next_board =
+        game.board
+        |> Board.add_to_bottom(game.piece, game.location)
+        |> Board.eliminate_full_rows()
+
+      Game.new(next_board, Piece.random(), Board.start_location(game.board))
+    end
   end
 end

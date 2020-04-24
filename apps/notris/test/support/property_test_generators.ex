@@ -37,12 +37,16 @@ defmodule Notris.PropertyTestGenerators do
     map_of(location(width, height), color())
   end
 
+  @doc """
+  Fills the lowest `num_rows` rows of a `Notris.Bottom` leaving the first column empty (so that the rows are not
+  eliminated).
+  """
   @spec fill_bottom(Board.t(), non_neg_integer()) :: Board.t()
   def fill_bottom(board, num_rows) do
     %Board{width: width, height: height} = board
 
     bottom =
-      for col <- 1..width, row <- (height - num_rows + 1)..height, into: %{} do
+      for col <- 2..width, row <- (height - num_rows + 1)..height, into: %{} do
         {Location.new(col, row), Enum.random(Color.values())}
       end
 

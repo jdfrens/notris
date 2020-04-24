@@ -33,6 +33,13 @@ defmodule Notris.Board do
     end
   end
 
+  @spec start_location(t()) :: Location.t()
+  def start_location(%Board{} = board) do
+    middle_col = div(board.width, 2)
+    off_board_row = -4
+    Location.new(middle_col, off_board_row)
+  end
+
   @doc """
   Adds a `piece` to the bottom of the `board` at a `location`.
   """
@@ -48,6 +55,14 @@ defmodule Notris.Board do
   @spec collides?(t(), Location.t()) :: boolean()
   def collides?(%Board{} = board, %Location{} = location) do
     collides_border?(board, location) or location in Bottom.locations_of(board.bottom)
+  end
+
+  @doc """
+  Eliminates full rows from the bottom.
+  """
+  @spec eliminate_full_rows(t()) :: t()
+  def eliminate_full_rows(%Board{} = board) do
+    %{board | bottom: Bottom.eliminate_full_rows(board.bottom, board.width, board.height)}
   end
 
   defp collides_border?(board, %Location{} = location) do
