@@ -21,6 +21,7 @@ defmodule NotrisWeb do
     quote do
       use Phoenix.Controller, namespace: NotrisWeb
       import Plug.Conn
+      import Phoenix.LiveView.Controller
       alias NotrisWeb.Router.Helpers, as: Routes
     end
   end
@@ -31,10 +32,8 @@ defmodule NotrisWeb do
         root: "lib/notris_web/templates",
         namespace: NotrisWeb
 
-      # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 1, get_flash: 2, view_module: 1]
-
-      # Use all HTML functionality (forms, tags, etc)
+      import Phoenix.LiveView.Helpers
       use Phoenix.HTML
 
       import NotrisWeb.ErrorHelpers
@@ -47,6 +46,7 @@ defmodule NotrisWeb do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 
