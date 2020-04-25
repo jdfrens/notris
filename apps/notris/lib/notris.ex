@@ -22,6 +22,9 @@ defmodule Notris do
     end
   end
 
+  @spec maybe_move_left(Game.t()) :: Game.t()
+  defdelegate maybe_move_left(game), to: Notris.Game
+
   @spec maybe_move_down(Game.t()) :: Game.t()
   defdelegate maybe_move_down(game), to: Notris.Game
 
