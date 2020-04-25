@@ -26,6 +26,11 @@ defmodule Notris do
   @spec maybe_move_down(Game.t()) :: Game.t()
   defdelegate maybe_move_down(game), to: Notris.Game
 
+  @spec piece_as_bottom(Game.t()) :: bottom()
+  def piece_as_bottom(game) do
+    Piece.to_bottom(game.piece, game.location)
+  end
+
   @doc """
   Returns the bottom of the board which consists of old, broken pieces.
 
