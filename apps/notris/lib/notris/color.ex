@@ -5,7 +5,7 @@ defmodule Notris.Color do
 
   alias Notris.Shape
 
-  @type t :: :red | :green | :blue | :yellow | :orange | :cyan | :pink
+  @type t :: :red | :green | :blue | :yellow | :orange | :purple | :grey
 
   @shape_color_map %{
     i: :red,
@@ -13,8 +13,8 @@ defmodule Notris.Color do
     ml: :blue,
     o: :yellow,
     s: :orange,
-    t: :cyan,
-    z: :pink
+    t: :purple,
+    z: :grey
   }
 
   @values Map.values(@shape_color_map)
