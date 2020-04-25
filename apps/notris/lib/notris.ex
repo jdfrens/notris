@@ -3,7 +3,7 @@ defmodule Notris do
   API for Notris.
   """
 
-  alias Notris.{Board, Bottom, Color, Game}
+  alias Notris.{Board, Game, Piece}
 
   @type bottom :: Notris.Bottom.t()
   @type color :: Notris.Color.t()
@@ -17,9 +17,8 @@ defmodule Notris do
   @spec new_game({width :: non_neg_integer(), height :: non_neg_integer()}) ::
           {:ok, Game.t()} | {:error, any()}
   def new_game(dimensions) do
-    with {:ok, board} <- Board.new(dimensions),
-         filled_board = fill_random_bottom(board) do
-      Game.new(filled_board)
+    with {:ok, board} <- Board.new(dimensions) do
+      {:ok, Game.new(board)}
     end
   end
 
@@ -37,22 +36,8 @@ defmodule Notris do
   The data is an Enumerable mapping `{column, row}` to `{color}`.  `column` and `row` are non-negative integers; `color`
   is an atom.
   """
-  @spec bottom_of(Game.t()) :: Bottom.t()
+  @spec bottom_of(Game.t()) :: bottom()
   def bottom_of(%Game{} = game) do
     game.board.bottom
-  end
-
-  @spec fill_random_bottom(Board.t()) :: Board.t()
-  defp fill_random_bottom(%Board{} = board) do
-    new_bottom =
-      Enum.map(1..10, fn _i ->
-        col = Enum.random(1..board.width)
-        row = Enum.random(1..board.height)
-        color = Enum.random(Color.values())
-        {{col, row}, color}
-      end)
-      |> Enum.into(board.bottom)
-
-    %{board | bottom: new_bottom}
   end
 end

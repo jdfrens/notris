@@ -23,6 +23,7 @@ defmodule NotrisWeb.NotrisLive do
     <div>
       <?xml version="1.0" encoding="iso-8859-1"?>
       <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;" xml:space="preserve">
+        <%= render_piece(@game) %>
         <%= render_bottom(Notris.bottom_of(@game)) %>
       </svg>
     </div>
@@ -31,13 +32,28 @@ defmodule NotrisWeb.NotrisLive do
 
   @spec new_game(Socket.t()) :: Socket.t()
   def new_game(socket) do
+    {:ok, game} = Notris.new_game({10, 10})
+
+    moved_game =
+      game
+      |> Notris.maybe_move_down()
+      |> Notris.maybe_move_down()
+      |> Notris.maybe_move_down()
+      |> Notris.maybe_move_down()
+
     socket
-    |> assign(%{game: Notris.new_game({10, 10})})
+    |> assign(%{game: moved_game})
   end
 
   @spec schedule_tick(Socket.t()) :: Socket.t()
   def schedule_tick(socket) do
     socket
+  end
+
+  def render_piece(game) do
+    game
+    |> Notris.piece_as_bottom()
+    |> render_bottom()
   end
 
   @spec render_bottom(Notris.bottom()) :: list(String.t())
@@ -50,14 +66,20 @@ defmodule NotrisWeb.NotrisLive do
   end
 
   defp convert_colors(stream) do
-    Stream.map(stream, fn {{col, row}, color} -> {{col, row}, WebColor.hexcodes_of(color)} end)
+    Stream.map(stream, fn {location, color} ->
+      {location, WebColor.hexcodes_of(color)}
+    end)
   end
 
   defp convert_coordinates(stream) do
-    Stream.map(stream, fn {{col, row}, hexcodes} -> {{col * 10, row * 10}, hexcodes} end)
+    Stream.map(stream, fn {location, hexcodes} ->
+      {{location.col * 10, location.row * 10}, hexcodes}
+    end)
   end
 
   defp to_boxes(stream) do
-    Stream.map(stream, fn {{x, y}, hexcodes} -> XML.box({x, y}, 10, hexcodes) end)
+    Stream.map(stream, fn {{x, y}, hexcodes} ->
+      XML.box({x, y}, 10, hexcodes)
+    end)
   end
 end
