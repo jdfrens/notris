@@ -39,6 +39,10 @@ defmodule NotrisWeb.NotrisLive do
     update(socket, :game, fn game -> Notris.maybe_move_left(game) end)
   end
 
+  defp move(socket, "ArrowRight") do
+    update(socket, :game, fn game -> Notris.maybe_move_right(game) end)
+  end
+
   defp move(socket, _key) do
     socket
   end
