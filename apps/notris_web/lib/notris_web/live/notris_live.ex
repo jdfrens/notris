@@ -20,7 +20,7 @@ defmodule NotrisWeb.NotrisLive do
   @impl Phoenix.LiveView
   def render(assigns) do
     ~L"""
-    <div>
+    <div phx-window-keydown="keydown">
       <?xml version="1.0" encoding="iso-8859-1"?>
       <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;" xml:space="preserve">
         <%= render_piece(@game) %>
@@ -28,6 +28,19 @@ defmodule NotrisWeb.NotrisLive do
       </svg>
     </div>
     """
+  end
+
+  @impl Phoenix.LiveView
+  def handle_event("keydown", %{"key" => key}, socket) do
+    {:noreply, move(socket, key)}
+  end
+
+  defp move(socket, "ArrowLeft") do
+    update(socket, :game, fn game -> Notris.maybe_move_left(game) end)
+  end
+
+  defp move(socket, _key) do
+    socket
   end
 
   @spec new_game(Socket.t()) :: Socket.t()
