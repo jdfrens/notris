@@ -8,7 +8,7 @@ defmodule NotrisWeb.NotrisLive.WebColor do
   # https://htmlcolorcodes.com/color-chart/
   @hexcodes %{
     red: {"#CE351B", "#A50C00"},
-    green: {"#34B515", "#34B515"},
+    green: {"#34B515", "#1E8449"},
     blue: {"#049CBF", "#047BA0"},
     yellow: {"#F9E79F", "#D4AC0D"},
     orange: {"#D66203", "#EF880C"},
