@@ -126,7 +126,7 @@
         {Credo.Check.Refactor.NegatedConditionsWithElse, []},
         {Credo.Check.Refactor.Nesting, []},
         {Credo.Check.Refactor.UnlessWithElse, []},
-        {Credo.Check.Refactor.WithClauses, []},
+        {Credo.Check.Refactor.WithClauses, false},
 
         #
         ## Warnings
