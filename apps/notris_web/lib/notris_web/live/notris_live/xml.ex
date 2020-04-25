@@ -48,6 +48,15 @@ defmodule NotrisWeb.NotrisLive.XML do
     ]
   end
 
+  def border({width, height}, board_color) do
+    points =
+      [{0, 0}, {0, height}, {width, height}, {width, 0}, {0, 0}]
+      |> Enum.map(fn {x, y} -> "#{x},#{y}" end)
+      |> Enum.join(" ")
+
+    element(:polyline, %{points: points, style: "fill:#{board_color};"})
+  end
+
   @spec highlight_polyline_points(NotrisLive.coords(), NotrisLive.dimension()) :: String.t()
   defp highlight_polyline_points({x, y}, length) do
     [{x, y}, {x + length, y}, {x + length, y + div(length * 875, 1000)}]
