@@ -5,48 +5,59 @@ defmodule NotrisWeb.NotrisLive do
 
   use Phoenix.LiveView
 
-  import XmlBuilder
+  alias NotrisWeb.NotrisLive.{WebColor, XML}
+  alias Phoenix.LiveView.Socket
 
   @type coords :: {non_neg_integer(), non_neg_integer()}
   @type dimension :: non_neg_integer()
-  @type colors :: {String.t(), String.t()}
+  @type colors :: {WebColor.hexcode(), WebColor.hexcode()}
 
+  @impl Phoenix.LiveView
+  def mount(_params, _session, socket) do
+    {:ok, socket |> new_game() |> schedule_tick()}
+  end
+
+  @impl Phoenix.LiveView
   def render(assigns) do
     ~L"""
     <div>
       <?xml version="1.0" encoding="iso-8859-1"?>
       <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;" xml:space="preserve">
-        <%= render_xml box({300, 0}, 64, {"#CE351B", "#A50C00"}) %>
-        <%= render_xml box({300, 64}, 64, {"#CE351B", "#A50C00"}) %>
-        <%= render_xml box({300, 64 * 2}, 64, {"#CE351B", "#A50C00"}) %>
-        <%= render_xml box({300, 64 * 3}, 64, {"#CE351B", "#A50C00"}) %>
+        <%= render_bottom(Notris.bottom_of(@game)) %>
       </svg>
-
     </div>
     """
   end
 
-  def render_xml(xml) do
-    xml
-    |> generate(format: :none)
-    |> Phoenix.HTML.raw()
+  @spec new_game(Socket.t()) :: Socket.t()
+  def new_game(socket) do
+    socket
+    |> assign(%{game: Notris.new_game({10, 10})})
   end
 
-  @spec box(coords(), dimension(), colors()) :: [{atom(), any(), any()}]
-  def box({x, y}, length, {primary_color, secondary_color}) do
-    [
-      element(:rect, %{x: x, y: y, width: length, height: length, style: "fill:#{primary_color};"}),
-      element(:polyline, %{
-        points: highlight_polyline_points({x, y}, length),
-        style: "fill:#{secondary_color};"
-      })
-    ]
+  @spec schedule_tick(Socket.t()) :: Socket.t()
+  def schedule_tick(socket) do
+    socket
   end
 
-  @spec highlight_polyline_points(coords(), dimension()) :: String.t()
-  defp highlight_polyline_points({x, y}, length) do
-    [{x, y}, {x + length, y}, {x + length, y + div(length * 875, 1000)}]
-    |> Enum.map(fn {x, y} -> "#{x},#{y}" end)
-    |> Enum.join(" ")
+  @spec render_bottom(Notris.bottom()) :: list(String.t())
+  def render_bottom(bottom) do
+    bottom
+    |> convert_colors()
+    |> convert_coordinates()
+    |> to_boxes()
+    |> Enum.map(&XML.render(&1))
+  end
+
+  defp convert_colors(stream) do
+    Stream.map(stream, fn {{col, row}, color} -> {{col, row}, WebColor.hexcodes_of(color)} end)
+  end
+
+  defp convert_coordinates(stream) do
+    Stream.map(stream, fn {{col, row}, hexcodes} -> {{col * 10, row * 10}, hexcodes} end)
+  end
+
+  defp to_boxes(stream) do
+    Stream.map(stream, fn {{x, y}, hexcodes} -> XML.box({x, y}, 10, hexcodes) end)
   end
 end
