@@ -4,12 +4,14 @@ defmodule Notris.Umbrella.MixProject do
   def project do
     [
       aliases: aliases(),
+      version: "0.1.0",
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       dialyzer: dialyzer(),
       preferred_cli_env: preferred_cli_env(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      releases: releases()
     ]
   end
 
@@ -58,6 +60,20 @@ defmodule Notris.Umbrella.MixProject do
       "coveralls.detail": :test,
       "coveralls.post": :test,
       "coveralls.html": :test
+    ]
+  end
+
+  defp releases do
+    [
+      notris: [
+        include_erts: true,
+        include_executables_for: [:unix],
+        applications: [
+          notris: :permanent,
+          notris_web: :permanent,
+          runtime_tools: :permanent
+        ]
+      ]
     ]
   end
 end

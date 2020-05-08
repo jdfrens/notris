@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :notris_web, NotrisWeb.Endpoint,
   http: [port: 4002],
