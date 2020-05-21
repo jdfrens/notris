@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 secret_key_base =
   System.get_env("SECRET_KEY_BASE") ||
@@ -12,4 +12,5 @@ config :notris_web, NotrisWeb.Endpoint,
     port: String.to_integer(System.get_env("PORT") || "4000"),
     transport_options: [socket_opts: [:inet6]]
   ],
-  secret_key_base: secret_key_base
+  secret_key_base: secret_key_base,
+  server: true

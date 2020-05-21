@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+  notris:
+    build:
+      context: .
+    environment:
+      SECRET_KEY_BASE: "2KQPwMahuJmbnj/SbZU+xPoKQ/yjnN037iBk5hwUf1hXgSOOQSk0NgSg8DypBu2B"
+    ports:
+      - "4000:4000"
