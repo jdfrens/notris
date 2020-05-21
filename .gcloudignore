@@ -11,7 +11,7 @@
 .tool-versions
 .vscode
 
-Dockerfile
+# Dockerfile
 README.md
 VERSION
 coveralls.json
