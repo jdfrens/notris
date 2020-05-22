@@ -36,7 +36,7 @@ defmodule NotrisWeb.MixProject do
       {:phoenix, "~> 1.5.0"},
       {:phoenix_html, "~> 2.11"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.12.1"},
+      {:phoenix_live_view, "~> 0.13.0"},
       {:phoenix_pubsub, "~> 2.0"},
       {:notris, in_umbrella: true},
       {:plug_cowboy, "~> 2.2"},
