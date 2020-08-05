@@ -1,0 +1,15 @@
+{
+	"name": "Elixir",
+	"build": {
+		"dockerfile": "Dockerfile",
+	},
+
+	"extensions": [
+		"jakebecker.elixir-ls"
+	],
+	
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	"remoteUser": "vscode"
+}
