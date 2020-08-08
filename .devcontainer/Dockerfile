@@ -1,19 +1,31 @@
-FROM hexpm/elixir:1.10.2-erlang-22.3.2-alpine-3.12.0
+#-----------------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for license information.
+# Modified by Jeremy D. Frens (2020/08)
+#-----------------------------------------------------------------------------------------
+FROM hexpm/elixir:1.10.4-erlang-22.3.4.5-ubuntu-focal-20200703
 
-ARG INSTALL_ZSH="true"
-ARG UPGRADE_PACKAGES="false"
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+# Elixir needs UTF-8
 
-# [Optional] Install Node.js for use with web applications - update the INSTALL_NODE arg in devcontainer.json to enable.
-# ARG INSTALL_NODE="true"
-# ARG NODE_VERSION="14.1.0"
-# ENV NVM_DIR=/usr/local/share/nvm \
-#     NVM_SYMLINK_CURRENT=true \
-#     PATH=${NVM_DIR}/current/bin:${PATH}
-# RUN if [ "$INSTALL_NODE" = "true" ]; then \
-#         /bin/bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}" \
-#         && apt-get clean -y && rm -rf /var/lib/apt/lists/*; \
-#     fi \
-#     && rm -rf /tmp/library-scripts
+# Configure apt
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends apt-utils 2>&1 \
+    && apt-get install -y locales
+
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=en_US.UTF-8
+
+ENV LANG="en_US.UTF-8"
+
+# Install git, process tools, lsb-release (common in install instructions for CLIs)
+RUN apt-get -y install git procps lsb-release
+
+# Clean up
+RUN apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+ENV DEBIAN_FRONTEND=dialog
+
+ENV SHELL /bin/bash
