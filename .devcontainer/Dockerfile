@@ -9,6 +9,7 @@ FROM hexpm/elixir:1.10.4-erlang-22.3.4.5-ubuntu-focal-20200703
 
 # Configure apt
 ENV DEBIAN_FRONTEND=noninteractive
+RUN echo "America/Chicago" | sudo tee /etc/timezone
 RUN apt-get update \
     && apt-get -y install --no-install-recommends apt-utils 2>&1 \
     && apt-get install -y locales
