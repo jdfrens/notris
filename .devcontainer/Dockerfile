@@ -3,13 +3,13 @@
 # Licensed under the MIT License. See LICENSE in the project root for license information.
 # Modified by Jeremy D. Frens (2020/08)
 #-----------------------------------------------------------------------------------------
-FROM hexpm/elixir:1.10.4-erlang-22.3.4.5-ubuntu-focal-20200703
+FROM elixir:1.10.4
 
 # Elixir needs UTF-8
 
 # Configure apt
 ENV DEBIAN_FRONTEND=noninteractive
-RUN echo "America/Chicago" | sudo tee /etc/timezone
+RUN echo "America/Chicago" | tee /etc/timezone
 RUN apt-get update \
     && apt-get -y install --no-install-recommends apt-utils 2>&1 \
     && apt-get install -y locales
