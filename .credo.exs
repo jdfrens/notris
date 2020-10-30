@@ -126,17 +126,18 @@
         {Credo.Check.Refactor.NegatedConditionsWithElse, []},
         {Credo.Check.Refactor.Nesting, []},
         {Credo.Check.Refactor.UnlessWithElse, []},
-        {Credo.Check.Refactor.WithClauses, false},
+        {Credo.Check.Refactor.WithClauses, []},
 
         #
         ## Warnings
         #
+        {Credo.Check.Warning.ApplicationConfigInModuleAttribute, []},
         {Credo.Check.Warning.BoolOperationOnSameValues, []},
         {Credo.Check.Warning.ExpensiveEmptyEnumCheck, []},
         {Credo.Check.Warning.IExPry, []},
         {Credo.Check.Warning.IoInspect, []},
         {Credo.Check.Warning.LazyLogging, false},
-        {Credo.Check.Warning.MixEnv, []},
+        {Credo.Check.Warning.MixEnv, false},
         {Credo.Check.Warning.OperationOnSameValues, []},
         {Credo.Check.Warning.OperationWithConstantResult, []},
         {Credo.Check.Warning.RaiseInsideRescue, []},
@@ -156,25 +157,28 @@
         #
         # Controversial and experimental checks (opt-in, just replace `false` with `[]`)
         #
-        {Credo.Check.Readability.StrictModuleLayout, []},
         {Credo.Check.Consistency.MultiAliasImportRequireUse, false},
-        {Credo.Check.Consistency.UnusedVariableNames, []},
-        {Credo.Check.Design.DuplicatedCode, []},
+        {Credo.Check.Consistency.UnusedVariableNames, false},
+        {Credo.Check.Design.DuplicatedCode, false},
         {Credo.Check.Readability.AliasAs, false},
+        {Credo.Check.Readability.BlockPipe, false},
+        {Credo.Check.Readability.ImplTrue, []},
         {Credo.Check.Readability.MultiAlias, false},
-        {Credo.Check.Readability.Specs, false},
+        {Credo.Check.Readability.SeparateAliasRequire, []},
         {Credo.Check.Readability.SinglePipe, false},
-        {Credo.Check.Readability.WithCustomTaggedTuple, []},
-        {Credo.Check.Refactor.ABCSize, []},
-        {Credo.Check.Refactor.AppendSingleItem, []},
-        {Credo.Check.Refactor.DoubleBooleanNegation, []},
-        {Credo.Check.Refactor.ModuleDependencies, [max_deps: 15]},
-        {Credo.Check.Refactor.NegatedIsNil, []},
+        {Credo.Check.Readability.Specs, []},
+        {Credo.Check.Readability.StrictModuleLayout, []},
+        {Credo.Check.Readability.WithCustomTaggedTuple, false},
+        {Credo.Check.Refactor.ABCSize, false},
+        {Credo.Check.Refactor.AppendSingleItem, false},
+        {Credo.Check.Refactor.DoubleBooleanNegation, false},
+        {Credo.Check.Refactor.ModuleDependencies, false},
+        {Credo.Check.Refactor.NegatedIsNil, false},
         {Credo.Check.Refactor.PipeChainStart, false},
-        {Credo.Check.Refactor.VariableRebinding, []},
-        {Credo.Check.Warning.MapGetUnsafePass, []},
-        {Credo.Check.Warning.UnsafeToAtom, []},
-        {Credo.Check.Warning.LeakyEnvironment, []}
+        {Credo.Check.Refactor.VariableRebinding, false},
+        {Credo.Check.Warning.LeakyEnvironment, false},
+        {Credo.Check.Warning.MapGetUnsafePass, false},
+        {Credo.Check.Warning.UnsafeToAtom, false}
 
         #
         # Custom checks can be created using `mix credo.gen.check`.

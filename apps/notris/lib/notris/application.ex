@@ -5,6 +5,7 @@ defmodule Notris.Application do
 
   use Application
 
+  @impl Application
   def start(_type, _args) do
     children = [
       # Notris.Worker
