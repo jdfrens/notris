@@ -7,6 +7,7 @@ defmodule Notris.Rotation do
 
   @values [0, 1, 2, 3]
 
+  @spec values :: list(non_neg_integer())
   def values do
     @values
   end

@@ -5,6 +5,7 @@ defmodule NotrisWeb.NotrisLive do
 
   use Phoenix.LiveView
 
+  alias Notris.Game
   alias NotrisWeb.NotrisLive.{WebColor, XML}
   alias Phoenix.LiveView.Socket
 
@@ -72,7 +73,8 @@ defmodule NotrisWeb.NotrisLive do
     socket
   end
 
-  def render_piece(game) do
+  @spec render_piece(Game.t()) :: list(String.t())
+  def render_piece(%Game{} = game) do
     game
     |> Notris.piece_as_bottom()
     |> render_bottom()
@@ -87,7 +89,8 @@ defmodule NotrisWeb.NotrisLive do
     |> Enum.map(&XML.render(&1))
   end
 
-  def render_border(game) do
+  @spec render_border(Game.t()) :: {:safe, String.t()}
+  def(render_border(%Game{} = game)) do
     view_width = 2 * @border_width + game.board.width * @box_width
     view_height = 2 * @border_width + game.board.height * @box_width
     XML.border({view_width, view_height}, @board_color) |> XML.render()

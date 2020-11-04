@@ -48,6 +48,7 @@ defmodule NotrisWeb.NotrisLive.XML do
     ]
   end
 
+  @spec border({number(), number()}, String.t()) :: box()
   def border({width, height}, board_color) do
     points =
       [{0, 0}, {0, height}, {width, height}, {width, 0}, {0, 0}]

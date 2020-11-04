@@ -12,6 +12,7 @@ defmodule Notris.Location do
   defstruct [:col, :row]
 
   @type t :: %__MODULE__{col: integer(), row: integer()}
+  @type location_tuple :: {integer(), integer()}
 
   @spec new(integer(), integer()) :: t()
   def new(col, row) when is_integer(col) and is_integer(row) do
@@ -23,6 +24,7 @@ defmodule Notris.Location do
     new(location.col + offset.col, location.row + offset.row)
   end
 
+  @spec to_locations(list(location_tuple())) :: list(t())
   def to_locations(location_tuples) do
     Enum.map(location_tuples, fn {col, row} -> new(col, row) end)
   end

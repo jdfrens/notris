@@ -1,3 +1,5 @@
+# credo:disable-for-this-file Credo.Check.Readability.Specs
+
 defmodule NotrisWeb.UserSocket do
   use Phoenix.Socket
 
