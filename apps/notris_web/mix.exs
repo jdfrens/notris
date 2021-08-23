@@ -40,7 +40,7 @@ defmodule NotrisWeb.MixProject do
       {:phoenix_pubsub, "~> 2.0"},
       {:notris, in_umbrella: true},
       {:plug_cowboy, "~> 2.2"},
-      {:xml_builder, "~> 2.1.1"}
+      {:xml_builder, "~> 2.2.0"}
     ]
   end
 
